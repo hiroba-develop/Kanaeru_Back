@@ -1,0 +1,92 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+	// OpenAPI Generatorプラグインを追加
+	id 'org.openapi.generator' version '7.2.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	
+	// JavaMail依存関係を追加
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	
+	// Lombok依存関係を追加
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	// OpenAPI関連の依存関係を追加
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+	
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+	runtimeOnly 'com.h2database:h2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// // OpenAPI Generatorの設定
+// openApiGenerate {
+// 	generatorName = "spring"
+// 	inputSpec = "$rootDir/api/swagger.yaml"
+// 	outputDir = "$buildDir/generated-sources/openapi"
+	
+// 	// Java関連の設定
+// 	apiPackage = "com.example.Product_Back.controller"
+// 	modelPackage = "com.example.Product_Back.model"
+	
+// 	configOptions = [
+// 		"dateLibrary": "java8-localdatetime",
+// 		"java8": "true",
+// 		"interfaceOnly": "true",
+// 		"skipDefaultInterface": "true",
+// 		"useTags": "true",
+// 		"useSpringBoot3": "true",
+// 		"serializationLibrary": "jackson",
+// 		"hideGenerationTimestamp": "true",
+// 		"library": "spring-boot",
+// 		"delegatePattern": "false",
+// 		"singleContentTypes": "true"
+// 	]
+	
+// 	// 生成するファイルの種類を指定
+// 	globalProperties = [
+// 		"models": "",
+// 		"apis": ""
+// 	]
+// }
+
+// // 生成されたファイルをsrcディレクトリにコピーするタスク
+// task copyGeneratedSources(type: Copy) {
+// 	dependsOn tasks.openApiGenerate
+// 	from "$buildDir/generated-sources/openapi/src/main/java"
+// 	into "src/main/java"
+// 	include "**/*.java"
+// }
+
+// // コンパイル前に自動生成を実行
+// compileJava.dependsOn tasks.openApiGenerate
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
