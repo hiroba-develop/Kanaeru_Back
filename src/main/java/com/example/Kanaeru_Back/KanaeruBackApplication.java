@@ -1,4 +1,4 @@
-package com.example.Product_Back;
+package com.example.Kanaeru_Back;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class ProductBackApplication {
+public class KanaeruBackApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProductBackApplication.class, args);
+        SpringApplication.run(KanaeruBackApplication.class, args);
     }
 }

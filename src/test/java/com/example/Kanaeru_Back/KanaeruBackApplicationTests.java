@@ -1,10 +1,10 @@
-package com.example.Product_Back;
+package com.example.Kanaeru_Back;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ProductBackApplicationTests {
+class KanaeruBackApplicationTests {
 
 	@Test
 	void contextLoads() {

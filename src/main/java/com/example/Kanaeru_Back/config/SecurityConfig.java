@@ -1,4 +1,4 @@
-package com.example.Product_Back.config;
+package com.example.Kanaeru_Back.config;
 
 import java.util.List;
 
@@ -34,11 +34,11 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		// 本番環境とローカル環境のオリジンを明示的に指定
 		configuration.setAllowedOrigins(List.of(
-				"https://product.com",
-				"http://product.com",
-				"http://13.114.155.51:5173",
-				"http://35.74.40.37:5173",
-				"http://localhost:5173"));
+				"https://kanaeru.com",
+				"http://kanaeru.com",
+				"http://13.114.155.51:5180",
+				"http://35.74.40.37:5180",
+				"http://localhost:5180"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);

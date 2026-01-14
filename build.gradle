@@ -29,6 +29,11 @@ dependencies {
 	// JavaMail依存関係を追加
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	
+	// JWT依存関係を追加
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	
 	// Lombok依存関係を追加
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -45,47 +50,47 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// // OpenAPI Generatorの設定
-// openApiGenerate {
-// 	generatorName = "spring"
-// 	inputSpec = "$rootDir/api/swagger.yaml"
-// 	outputDir = "$buildDir/generated-sources/openapi"
+ // OpenAPI Generatorの設定
+ openApiGenerate {
+ 	generatorName = "spring"
+ 	inputSpec = "$rootDir/api/kanaeru_api_swagger.yaml"
+ 	outputDir = "$buildDir/generated-sources/openapi"
 	
-// 	// Java関連の設定
-// 	apiPackage = "com.example.Product_Back.controller"
-// 	modelPackage = "com.example.Product_Back.model"
+ 	// Java関連の設定
+ 	apiPackage = "com.example.Kanaeru_Back.controller"
+ 	modelPackage = "com.example.Kanaeru_Back.model"
 	
-// 	configOptions = [
-// 		"dateLibrary": "java8-localdatetime",
-// 		"java8": "true",
-// 		"interfaceOnly": "true",
-// 		"skipDefaultInterface": "true",
-// 		"useTags": "true",
-// 		"useSpringBoot3": "true",
-// 		"serializationLibrary": "jackson",
-// 		"hideGenerationTimestamp": "true",
-// 		"library": "spring-boot",
-// 		"delegatePattern": "false",
-// 		"singleContentTypes": "true"
-// 	]
+ 	configOptions = [
+ 		"dateLibrary": "java8-localdatetime",
+ 		"java8": "true",
+ 		"interfaceOnly": "true",
+ 		"skipDefaultInterface": "true",
+ 		"useTags": "true",
+ 		"useSpringBoot3": "true",
+ 		"serializationLibrary": "jackson",
+ 		"hideGenerationTimestamp": "true",
+ 		"library": "spring-boot",
+ 		"delegatePattern": "false",
+ 		"singleContentTypes": "true"
+ 	]
 	
-// 	// 生成するファイルの種類を指定
-// 	globalProperties = [
-// 		"models": "",
-// 		"apis": ""
-// 	]
-// }
+ 	// 生成するファイルの種類を指定
+ 	globalProperties = [
+ 		"models": "",
+ 		"apis": ""
+ 	]
+ }
 
-// // 生成されたファイルをsrcディレクトリにコピーするタスク
-// task copyGeneratedSources(type: Copy) {
-// 	dependsOn tasks.openApiGenerate
-// 	from "$buildDir/generated-sources/openapi/src/main/java"
-// 	into "src/main/java"
-// 	include "**/*.java"
-// }
+ // 生成されたファイルをsrcディレクトリにコピーするタスク
+ task copyGeneratedSources(type: Copy) {
+ 	dependsOn tasks.openApiGenerate
+ 	from "$buildDir/generated-sources/openapi/src/main/java"
+ 	into "src/main/java"
+ 	include "**/*.java"
+ }
 
-// // コンパイル前に自動生成を実行
-// compileJava.dependsOn tasks.openApiGenerate
+ // コンパイル前に自動生成を実行
+ compileJava.dependsOn tasks.openApiGenerate
 
 tasks.named('test') {
 	useJUnitPlatform()
