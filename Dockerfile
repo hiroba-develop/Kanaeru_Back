@@ -7,7 +7,7 @@ COPY . .
 RUN gradle bootJar --no-daemon
 
 # ── 実行フェーズ ──
-FROM openjdk:21-jdk-slim AS runtime
+FROM eclipse-temurin:21-jre AS runtime
 
 # root 権限に切り替えてロケールをインストール
 USER root
@@ -32,3 +32,9 @@ EXPOSE 8087
 
 # JVM オプションは環境変数経由で渡されるので、シンプルに実行
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# タイムゾーンをAsia/Tokyoに設定
+ENV TZ=Asia/Tokyo \
+    LANG=ja_JP.UTF-8 \
+    LC_ALL=ja_JP.UTF-8 \
+    JAVA_TOOL_OPTIONS="-Xms1g -Xmx8g -Dfile.encoding=UTF-8 -Duser.timezone=Asia/Tokyo"

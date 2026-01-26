@@ -2,7 +2,6 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
-import com.example.Kanaeru_Back.model.UserSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -17,18 +16,18 @@ import java.util.*;
 import jakarta.annotation.Generated;
 
 /**
- * ApiSettingUpdateAdminPut200Response
+ * ApiSettingUserImagePost200Response
  */
 
-@JsonTypeName("_api_setting_update_admin_put_200_response")
+@JsonTypeName("_api_setting_user_image_post_200_response")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ApiSettingUpdateAdminPut200Response {
+public class ApiSettingUserImagePost200Response {
 
   private Integer responseStatus;
 
-  private UserSchema userSchema;
+  private String imageUrl;
 
-  public ApiSettingUpdateAdminPut200Response responseStatus(Integer responseStatus) {
+  public ApiSettingUserImagePost200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
     return this;
   }
@@ -48,24 +47,24 @@ public class ApiSettingUpdateAdminPut200Response {
     this.responseStatus = responseStatus;
   }
 
-  public ApiSettingUpdateAdminPut200Response userSchema(UserSchema userSchema) {
-    this.userSchema = userSchema;
+  public ApiSettingUserImagePost200Response imageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
     return this;
   }
 
   /**
-   * Get userSchema
-   * @return userSchema
+   * Get imageUrl
+   * @return imageUrl
   */
-  @Valid 
-  @Schema(name = "userSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("userSchema")
-  public UserSchema getUserSchema() {
-    return userSchema;
+  
+  @Schema(name = "imageUrl", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("imageUrl")
+  public String getImageUrl() {
+    return imageUrl;
   }
 
-  public void setUserSchema(UserSchema userSchema) {
-    this.userSchema = userSchema;
+  public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
   }
 
   @Override
@@ -76,22 +75,22 @@ public class ApiSettingUpdateAdminPut200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ApiSettingUpdateAdminPut200Response apiSettingUpdateAdminPut200Response = (ApiSettingUpdateAdminPut200Response) o;
-    return Objects.equals(this.responseStatus, apiSettingUpdateAdminPut200Response.responseStatus) &&
-        Objects.equals(this.userSchema, apiSettingUpdateAdminPut200Response.userSchema);
+    ApiSettingUserImagePost200Response apiSettingUserImagePost200Response = (ApiSettingUserImagePost200Response) o;
+    return Objects.equals(this.responseStatus, apiSettingUserImagePost200Response.responseStatus) &&
+        Objects.equals(this.imageUrl, apiSettingUserImagePost200Response.imageUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, userSchema);
+    return Objects.hash(responseStatus, imageUrl);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ApiSettingUpdateAdminPut200Response {\n");
+    sb.append("class ApiSettingUserImagePost200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
-    sb.append("    userSchema: ").append(toIndentedString(userSchema)).append("\n");
+    sb.append("    imageUrl: ").append(toIndentedString(imageUrl)).append("\n");
     sb.append("}");
     return sb.toString();
   }

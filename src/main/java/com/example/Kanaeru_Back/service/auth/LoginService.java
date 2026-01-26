@@ -1,7 +1,9 @@
 package com.example.Kanaeru_Back.service.auth;
 
+import com.example.Kanaeru_Back.entity.SettingEntity;
 import com.example.Kanaeru_Back.entity.UserEntity;
 import com.example.Kanaeru_Back.model.ApiAuthLoginPost200Response;
+import com.example.Kanaeru_Back.repository.SettingRepository;
 import com.example.Kanaeru_Back.repository.UserRepository;
 import com.example.Kanaeru_Back.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ public class LoginService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SettingRepository settingRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -32,11 +37,19 @@ public class LoginService {
                 if ("0".equals(user.getDelFlg())) {
                     String token = jwtUtil.generateToken(user.getUserId(), user.getRole());
                     
+                    String userImageUrl = null;
+                    Optional<SettingEntity> settingOptional = settingRepository.findByUserId(user.getUserId());
+                    if (settingOptional.isPresent()) {
+                        userImageUrl = settingOptional.get().getUserImageUrl();
+                    }
+                    
                     response.setResponseStatus(1);
                     response.setUserId(user.getUserId());
                     response.setName(user.getName());
+                    response.setEmail(user.getEmail());
                     response.setRole(user.getRole());
                     response.setToken(token);
+                    response.setUserImageUrl(userImageUrl);
                 } else {
                     response.setResponseStatus(0);
                 }

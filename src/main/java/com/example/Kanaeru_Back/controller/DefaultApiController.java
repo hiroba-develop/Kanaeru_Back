@@ -10,7 +10,9 @@ import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthResetPasswordPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthUpdatePasswordPutRequest;
 import com.example.Kanaeru_Back.model.ApiAvailabilityGet200Response;
-import com.example.Kanaeru_Back.model.ApiClientGet200Response;
+import com.example.Kanaeru_Back.model.ApiContactsSendPostRequest;
+import com.example.Kanaeru_Back.model.ApiGetAdminUsersGet200Response;
+import com.example.Kanaeru_Back.model.ApiGetUsersGet200Response;
 import com.example.Kanaeru_Back.model.ApiGrossProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiHomeGet200Response;
 import com.example.Kanaeru_Back.model.ApiLargeGoalsChartIdCreatePost200Response;
@@ -30,8 +32,9 @@ import com.example.Kanaeru_Back.model.ApiMiddleGoalsMiddleGoalIdUpdatePutRequest
 import com.example.Kanaeru_Back.model.ApiNetAssetUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiOperatingProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSaleUpdatePut200Response;
-import com.example.Kanaeru_Back.model.ApiSettingUpdateAdminPut200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUpdateUserPut200Response;
+import com.example.Kanaeru_Back.model.ApiSettingUserImagePost200Response;
+import com.example.Kanaeru_Back.model.ApiUpdateAdminUsersPut200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePost200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdGet200Response;
@@ -49,14 +52,23 @@ import com.example.Kanaeru_Back.model.GrossProfitSchema;
 import com.example.Kanaeru_Back.model.NetAssetsSchema;
 import com.example.Kanaeru_Back.model.OperatingProfitSchema;
 import com.example.Kanaeru_Back.model.SaleSchema;
+import com.example.Kanaeru_Back.service.auth.ForgotPasswordService;
 import com.example.Kanaeru_Back.service.auth.LoginService;
 import com.example.Kanaeru_Back.service.auth.LogoutService;
+import com.example.Kanaeru_Back.service.auth.RegistrationAdminService;
 import com.example.Kanaeru_Back.service.auth.RegistrationUserService;
+import com.example.Kanaeru_Back.service.auth.ResetPasswordService;
 import com.example.Kanaeru_Back.service.auth.UpdatePasswordService;
+import com.example.Kanaeru_Back.service.contacts.ContactsService;
+import com.example.Kanaeru_Back.service.users.delete.AccountService;
+import com.example.Kanaeru_Back.service.users.get.AdminUsersService;
+import com.example.Kanaeru_Back.service.users.get.UsersService;
 import com.example.Kanaeru_Back.service.mandalaChart.CreateService;
 import com.example.Kanaeru_Back.service.mandalaChart.GetService;
 import com.example.Kanaeru_Back.service.mandalaChart.UpdateMainGoalService;
 import com.example.Kanaeru_Back.service.setting.UserService;
+import com.example.Kanaeru_Back.service.setting.UserImageService;
+import com.example.Kanaeru_Back.service.screenDisplay.YearlyBudgetActualService;
 import com.example.Kanaeru_Back.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +78,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -78,6 +91,9 @@ public class DefaultApiController implements DefaultApi {
     private RegistrationUserService registrationUserService;
 
     @Autowired
+    private RegistrationAdminService registrationAdminService;
+
+    @Autowired
     private LoginService loginService;
 
     @Autowired
@@ -87,7 +103,16 @@ public class DefaultApiController implements DefaultApi {
     private UpdatePasswordService updatePasswordService;
 
     @Autowired
+    private ForgotPasswordService forgotPasswordService;
+
+    @Autowired
+    private ResetPasswordService resetPasswordService;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserImageService userImageService;
 
     @Autowired
     @Qualifier("mandalaChartCreateService")
@@ -129,6 +154,38 @@ public class DefaultApiController implements DefaultApi {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private YearlyBudgetActualService yearlyBudgetActualService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.sale.UpdateService saleUpdateService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.grossProfit.UpdateService grossProfitUpdateService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.operatingProfit.UpdateService operatingProfitUpdateService;
+
+    @Autowired
+    @Qualifier("getAdminUsersService")
+    private AdminUsersService adminUsersService;
+
+    @Autowired
+    private UsersService usersService;
+
+    @Autowired
+    @Qualifier("updateAdminUsersService")
+    private com.example.Kanaeru_Back.service.users.update.AdminUsersService updateAdminUsersService;
+
+    @Autowired
+    private ContactsService contactsService;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.screenDisplay.HomeService homeService;
+
     @Override
     public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationUserPost(
             ApiAuthRegistrationUserPostRequest apiAuthRegistrationUserPostRequest) {
@@ -144,7 +201,8 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthForgotPasswordPost(
             ApiAuthForgotPasswordPostRequest apiAuthForgotPasswordPostRequest) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiAuthRegistrationUserPost200Response response = forgotPasswordService.sendPasswordResetEmail(apiAuthForgotPasswordPostRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -163,13 +221,15 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationAdminPost(
             ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiAuthRegistrationUserPost200Response response = registrationAdminService.registerAdmin(apiAuthRegistrationAdminPostRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthResetPasswordPost(
             ApiAuthResetPasswordPostRequest apiAuthResetPasswordPostRequest) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiAuthRegistrationUserPost200Response response = resetPasswordService.resetPassword(apiAuthResetPasswordPostRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -245,8 +305,26 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiClientGet200Response> apiClientGet(String userId) {
-        throw new UnsupportedOperationException("Not implemented");
+    public ResponseEntity<ApiAuthLogoutPost200Response> apiContactsSendPost(
+            ApiContactsSendPostRequest apiContactsSendPostRequest) {
+        ApiAuthLogoutPost200Response response = contactsService.sendContactEmail(apiContactsSendPostRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiGetAdminUsersGet200Response> apiGetAdminUsersGet() {
+        logger.info("apiGetAdminUsersGet called");
+        ApiGetAdminUsersGet200Response response = adminUsersService.getAdminUsers();
+        logger.info("apiGetAdminUsersGet response status: {}, user count: {}", 
+            response.getResponseStatus(),
+            response.getAdminUserListSchema() != null ? response.getAdminUserListSchema().size() : 0);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiGetUsersGet200Response> apiGetUsersGet() {
+        ApiGetUsersGet200Response response = usersService.getUsers();
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -261,12 +339,91 @@ public class DefaultApiController implements DefaultApi {
 
     @Override
     public ResponseEntity<ApiGrossProfitUpdatePut200Response> apiGrossProfitUpdatePut(GrossProfitSchema grossProfitSchema) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiGrossProfitUpdatePut200Response response = grossProfitUpdateService.updateGrossProfit(grossProfitSchema);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<ApiHomeGet200Response> apiHomeGet(String userId) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiHomeGet200Response response = new ApiHomeGet200Response();
+        
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes == null) {
+                logger.error("RequestContextHolder.getRequestAttributes() returned null");
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            jakarta.servlet.http.HttpServletRequest request = attributes.getRequest();
+            
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null) {
+                authorizationHeader = request.getHeader("authorization");
+            }
+            
+            if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
+                logger.warn("Authorization header is missing or empty");
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            authorizationHeader = authorizationHeader.trim();
+            String token;
+            if (authorizationHeader.startsWith("Bearer ")) {
+                token = authorizationHeader.substring(7);
+            } else if (authorizationHeader.startsWith("Bearer")) {
+                token = authorizationHeader.substring(6).trim();
+            } else {
+                logger.warn("Authorization header does not start with 'Bearer': {}", authorizationHeader);
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            if (token == null || token.isEmpty()) {
+                logger.warn("Token is empty after extracting from Authorization header");
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            String loggedInUserId = jwtUtil.extractUserId(token);
+            String role = jwtUtil.extractRole(token);
+            
+            logger.debug("apiHomeGet - loggedInUserId: {}, role: {}, userId param: {}", loggedInUserId, role, userId);
+            
+            // role:0の場合は自分のユーザーID、role:1または2の場合は選択されているユーザーIDを使用
+            String targetUserId;
+            if ("0".equals(role)) {
+                targetUserId = loggedInUserId;
+            } else if ("1".equals(role) || "2".equals(role)) {
+                if (userId == null || userId.isEmpty()) {
+                    logger.warn("userId parameter is null or empty for role: {}", role);
+                    response.setResponseStatus(0);
+                    return ResponseEntity.ok(response);
+                }
+                targetUserId = userId;
+            } else {
+                logger.warn("Invalid role: {}", role);
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            logger.info("apiHomeGet - targetUserId: {}", targetUserId);
+            response = homeService.getHomeData(targetUserId);
+            logger.info("apiHomeGet - response status: {}, mainGoalSchema: {}, largeGoalSchema size: {}", 
+                response.getResponseStatus(),
+                response.getMainGoalSchema() != null ? "present" : "null",
+                response.getLargeGoalSchema() != null ? response.getLargeGoalSchema().size() : 0);
+        } catch (Exception e) {
+            logger.error("Error in apiHomeGet", e);
+            e.printStackTrace();
+            if (response == null) {
+                response = new ApiHomeGet200Response();
+            }
+            response.setResponseStatus(0);
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -385,21 +542,23 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiOperatingProfitUpdatePut200Response> apiOperatingProfitUpdatePut(
             OperatingProfitSchema operatingProfitSchema) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiOperatingProfitUpdatePut200Response response = operatingProfitUpdateService.updateOperatingProfit(operatingProfitSchema);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<ApiSaleUpdatePut200Response> apiSaleUpdatePut(SaleSchema saleSchema) {
+        ApiSaleUpdatePut200Response response = saleUpdateService.updateSale(saleSchema);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiUpdateAdminUsersPut200Response> apiSettingAdminGet(String userId) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public ResponseEntity<ApiSettingUpdateAdminPut200Response> apiSettingAdminGet(String userId) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public ResponseEntity<ApiSettingUpdateAdminPut200Response> apiSettingUpdateAdminPut(
+    public ResponseEntity<ApiUpdateAdminUsersPut200Response> apiSettingUpdateAdminPut(
             ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest) {
         throw new UnsupportedOperationException("Not implemented");
     }
@@ -416,6 +575,33 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiSettingUpdateUserPut200Response> apiSettingUserGet(String userId) {
         ApiSettingUpdateUserPut200Response response = userService.getUserSetting(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiSettingUserImagePost200Response> apiSettingUserImagePost(
+            String userId, MultipartFile imageFile) {
+        ApiSettingUserImagePost200Response response = new ApiSettingUserImagePost200Response();
+        
+        try {
+            if (userId == null || userId.isEmpty()) {
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            if (imageFile == null || imageFile.isEmpty()) {
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+            
+            String imageUrl = userImageService.uploadUserImage(userId, imageFile);
+            response.setResponseStatus(1);
+            response.setImageUrl(imageUrl);
+        } catch (Exception e) {
+            logger.error("Error uploading user image", e);
+            response.setResponseStatus(0);
+        }
+        
         return ResponseEntity.ok(response);
     }
 
@@ -506,7 +692,21 @@ public class DefaultApiController implements DefaultApi {
 
     @Override
     public ResponseEntity<ApiYearlyBudgetActualGet200Response> apiYearlyBudgetActualGet(String userId) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiYearlyBudgetActualGet200Response response = yearlyBudgetActualService.getYearlyBudgetActual(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiUpdateAdminUsersPut200Response> apiUpdateAdminUsersPut(
+            ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest) {
+        ApiUpdateAdminUsersPut200Response response = updateAdminUsersService.updateAdminUser(apiAuthRegistrationAdminPostRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthLogoutPost200Response> apiDeleteAccountDelete(String userId) {
+        ApiAuthLogoutPost200Response response = accountService.deleteAccount(userId);
+        return ResponseEntity.ok(response);
     }
 }
 

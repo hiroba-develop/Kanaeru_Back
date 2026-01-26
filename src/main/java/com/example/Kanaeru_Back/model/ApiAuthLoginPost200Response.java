@@ -29,6 +29,10 @@ public class ApiAuthLoginPost200Response {
 
   private String name;
 
+  private String email;
+
+  private String userImageUrl;
+
   private String role;
 
   private String token;
@@ -93,6 +97,46 @@ public class ApiAuthLoginPost200Response {
     this.name = name;
   }
 
+  public ApiAuthLoginPost200Response email(String email) {
+    this.email = email;
+    return this;
+  }
+
+  /**
+   * Get email
+   * @return email
+  */
+  
+  @Schema(name = "email", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("email")
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public ApiAuthLoginPost200Response userImageUrl(String userImageUrl) {
+    this.userImageUrl = userImageUrl;
+    return this;
+  }
+
+  /**
+   * Get userImageUrl
+   * @return userImageUrl
+  */
+  
+  @Schema(name = "userImageUrl", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("userImageUrl")
+  public String getUserImageUrl() {
+    return userImageUrl;
+  }
+
+  public void setUserImageUrl(String userImageUrl) {
+    this.userImageUrl = userImageUrl;
+  }
+
   public ApiAuthLoginPost200Response role(String role) {
     this.role = role;
     return this;
@@ -145,13 +189,15 @@ public class ApiAuthLoginPost200Response {
     return Objects.equals(this.responseStatus, apiAuthLoginPost200Response.responseStatus) &&
         Objects.equals(this.userId, apiAuthLoginPost200Response.userId) &&
         Objects.equals(this.name, apiAuthLoginPost200Response.name) &&
+        Objects.equals(this.email, apiAuthLoginPost200Response.email) &&
+        Objects.equals(this.userImageUrl, apiAuthLoginPost200Response.userImageUrl) &&
         Objects.equals(this.role, apiAuthLoginPost200Response.role) &&
         Objects.equals(this.token, apiAuthLoginPost200Response.token);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, userId, name, role, token);
+    return Objects.hash(responseStatus, userId, name, email, userImageUrl, role, token);
   }
 
   @Override
@@ -161,6 +207,8 @@ public class ApiAuthLoginPost200Response {
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    email: ").append(toIndentedString(email)).append("\n");
+    sb.append("    userImageUrl: ").append(toIndentedString(userImageUrl)).append("\n");
     sb.append("    role: ").append(toIndentedString(role)).append("\n");
     sb.append("    token: ").append(toIndentedString(token)).append("\n");
     sb.append("}");

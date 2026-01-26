@@ -51,4 +51,7 @@ public class SettingEntity {
     
     @Column(name = "UPDATED_AT", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "USER_IMAGE_URL", length = 500)
+    private String userImageUrl;
 }

@@ -2,10 +2,17 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
+import com.example.Kanaeru_Back.model.GrossProfitSchema;
+import com.example.Kanaeru_Back.model.LargePLLinkedItemSchema;
+import com.example.Kanaeru_Back.model.MiddlePLLinkedItemSchema;
+import com.example.Kanaeru_Back.model.OperatingProfitSchema;
+import com.example.Kanaeru_Back.model.SaleSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -26,25 +33,20 @@ public class ApiYearlyBudgetActualGet200Response {
 
   private Integer responseStatus;
 
-  private String saleId;
+  @Valid
+  private List<@Valid SaleSchema> saleSchema;
 
-  private String userId;
+  @Valid
+  private List<@Valid GrossProfitSchema> grossProfitSchema;
 
-  private Integer year;
+  @Valid
+  private List<@Valid OperatingProfitSchema> operatingProfitSchema;
 
-  private Integer month;
+  @Valid
+  private List<@Valid LargePLLinkedItemSchema> largePLLinkedItemSchema;
 
-  private BigDecimal saleTarget;
-
-  private String profitId;
-
-  private BigDecimal profitTarget;
-
-  private String netAssetId;
-
-  private BigDecimal netAssetTarget;
-
-  private BigDecimal netAssetResult;
+  @Valid
+  private List<@Valid MiddlePLLinkedItemSchema> middlePLLinkedItemSchema;
 
   public ApiYearlyBudgetActualGet200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
@@ -66,204 +68,144 @@ public class ApiYearlyBudgetActualGet200Response {
     this.responseStatus = responseStatus;
   }
 
-  public ApiYearlyBudgetActualGet200Response saleId(String saleId) {
-    this.saleId = saleId;
+  public ApiYearlyBudgetActualGet200Response saleSchema(List<@Valid SaleSchema> saleSchema) {
+    this.saleSchema = saleSchema;
+    return this;
+  }
+
+  public ApiYearlyBudgetActualGet200Response addSaleSchemaItem(SaleSchema saleSchemaItem) {
+    if (this.saleSchema == null) {
+      this.saleSchema = new ArrayList<>();
+    }
+    this.saleSchema.add(saleSchemaItem);
     return this;
   }
 
   /**
-   * Get saleId
-   * @return saleId
-  */
-  
-  @Schema(name = "saleId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("saleId")
-  public String getSaleId() {
-    return saleId;
-  }
-
-  public void setSaleId(String saleId) {
-    this.saleId = saleId;
-  }
-
-  public ApiYearlyBudgetActualGet200Response userId(String userId) {
-    this.userId = userId;
-    return this;
-  }
-
-  /**
-   * Get userId
-   * @return userId
-  */
-  
-  @Schema(name = "userId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("userId")
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
-  }
-
-  public ApiYearlyBudgetActualGet200Response year(Integer year) {
-    this.year = year;
-    return this;
-  }
-
-  /**
-   * Get year
-   * @return year
-  */
-  
-  @Schema(name = "year", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("year")
-  public Integer getYear() {
-    return year;
-  }
-
-  public void setYear(Integer year) {
-    this.year = year;
-  }
-
-  public ApiYearlyBudgetActualGet200Response month(Integer month) {
-    this.month = month;
-    return this;
-  }
-
-  /**
-   * Get month
-   * @return month
-  */
-  
-  @Schema(name = "month", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("month")
-  public Integer getMonth() {
-    return month;
-  }
-
-  public void setMonth(Integer month) {
-    this.month = month;
-  }
-
-  public ApiYearlyBudgetActualGet200Response saleTarget(BigDecimal saleTarget) {
-    this.saleTarget = saleTarget;
-    return this;
-  }
-
-  /**
-   * Get saleTarget
-   * @return saleTarget
+   * Get saleSchema
+   * @return saleSchema
   */
   @Valid 
-  @Schema(name = "saleTarget", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("saleTarget")
-  public BigDecimal getSaleTarget() {
-    return saleTarget;
+  @Schema(name = "saleSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("saleSchema")
+  public List<@Valid SaleSchema> getSaleSchema() {
+    return saleSchema;
   }
 
-  public void setSaleTarget(BigDecimal saleTarget) {
-    this.saleTarget = saleTarget;
+  public void setSaleSchema(List<@Valid SaleSchema> saleSchema) {
+    this.saleSchema = saleSchema;
   }
 
-  public ApiYearlyBudgetActualGet200Response profitId(String profitId) {
-    this.profitId = profitId;
+  public ApiYearlyBudgetActualGet200Response grossProfitSchema(List<@Valid GrossProfitSchema> grossProfitSchema) {
+    this.grossProfitSchema = grossProfitSchema;
+    return this;
+  }
+
+  public ApiYearlyBudgetActualGet200Response addGrossProfitSchemaItem(GrossProfitSchema grossProfitSchemaItem) {
+    if (this.grossProfitSchema == null) {
+      this.grossProfitSchema = new ArrayList<>();
+    }
+    this.grossProfitSchema.add(grossProfitSchemaItem);
     return this;
   }
 
   /**
-   * Get profitId
-   * @return profitId
-  */
-  
-  @Schema(name = "profitId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("profitId")
-  public String getProfitId() {
-    return profitId;
-  }
-
-  public void setProfitId(String profitId) {
-    this.profitId = profitId;
-  }
-
-  public ApiYearlyBudgetActualGet200Response profitTarget(BigDecimal profitTarget) {
-    this.profitTarget = profitTarget;
-    return this;
-  }
-
-  /**
-   * Get profitTarget
-   * @return profitTarget
+   * Get grossProfitSchema
+   * @return grossProfitSchema
   */
   @Valid 
-  @Schema(name = "profitTarget", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("profitTarget")
-  public BigDecimal getProfitTarget() {
-    return profitTarget;
+  @Schema(name = "grossProfitSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("grossProfitSchema")
+  public List<@Valid GrossProfitSchema> getGrossProfitSchema() {
+    return grossProfitSchema;
   }
 
-  public void setProfitTarget(BigDecimal profitTarget) {
-    this.profitTarget = profitTarget;
+  public void setGrossProfitSchema(List<@Valid GrossProfitSchema> grossProfitSchema) {
+    this.grossProfitSchema = grossProfitSchema;
   }
 
-  public ApiYearlyBudgetActualGet200Response netAssetId(String netAssetId) {
-    this.netAssetId = netAssetId;
+  public ApiYearlyBudgetActualGet200Response operatingProfitSchema(List<@Valid OperatingProfitSchema> operatingProfitSchema) {
+    this.operatingProfitSchema = operatingProfitSchema;
+    return this;
+  }
+
+  public ApiYearlyBudgetActualGet200Response addOperatingProfitSchemaItem(OperatingProfitSchema operatingProfitSchemaItem) {
+    if (this.operatingProfitSchema == null) {
+      this.operatingProfitSchema = new ArrayList<>();
+    }
+    this.operatingProfitSchema.add(operatingProfitSchemaItem);
     return this;
   }
 
   /**
-   * Get netAssetId
-   * @return netAssetId
-  */
-  
-  @Schema(name = "netAssetId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("netAssetId")
-  public String getNetAssetId() {
-    return netAssetId;
-  }
-
-  public void setNetAssetId(String netAssetId) {
-    this.netAssetId = netAssetId;
-  }
-
-  public ApiYearlyBudgetActualGet200Response netAssetTarget(BigDecimal netAssetTarget) {
-    this.netAssetTarget = netAssetTarget;
-    return this;
-  }
-
-  /**
-   * Get netAssetTarget
-   * @return netAssetTarget
+   * Get operatingProfitSchema
+   * @return operatingProfitSchema
   */
   @Valid 
-  @Schema(name = "netAssetTarget", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("netAssetTarget")
-  public BigDecimal getNetAssetTarget() {
-    return netAssetTarget;
+  @Schema(name = "operatingProfitSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("operatingProfitSchema")
+  public List<@Valid OperatingProfitSchema> getOperatingProfitSchema() {
+    return operatingProfitSchema;
   }
 
-  public void setNetAssetTarget(BigDecimal netAssetTarget) {
-    this.netAssetTarget = netAssetTarget;
+  public void setOperatingProfitSchema(List<@Valid OperatingProfitSchema> operatingProfitSchema) {
+    this.operatingProfitSchema = operatingProfitSchema;
   }
 
-  public ApiYearlyBudgetActualGet200Response netAssetResult(BigDecimal netAssetResult) {
-    this.netAssetResult = netAssetResult;
+  public ApiYearlyBudgetActualGet200Response largePLLinkedItemSchema(List<@Valid LargePLLinkedItemSchema> largePLLinkedItemSchema) {
+    this.largePLLinkedItemSchema = largePLLinkedItemSchema;
+    return this;
+  }
+
+  public ApiYearlyBudgetActualGet200Response addLargePLLinkedItemSchemaItem(LargePLLinkedItemSchema largePLLinkedItemSchemaItem) {
+    if (this.largePLLinkedItemSchema == null) {
+      this.largePLLinkedItemSchema = new ArrayList<>();
+    }
+    this.largePLLinkedItemSchema.add(largePLLinkedItemSchemaItem);
     return this;
   }
 
   /**
-   * Get netAssetResult
-   * @return netAssetResult
+   * Get largePLLinkedItemSchema
+   * @return largePLLinkedItemSchema
   */
   @Valid 
-  @Schema(name = "netAssetResult", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("netAssetResult")
-  public BigDecimal getNetAssetResult() {
-    return netAssetResult;
+  @Schema(name = "largePLLinkedItemSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("largePLLinkedItemSchema")
+  public List<@Valid LargePLLinkedItemSchema> getLargePLLinkedItemSchema() {
+    return largePLLinkedItemSchema;
   }
 
-  public void setNetAssetResult(BigDecimal netAssetResult) {
-    this.netAssetResult = netAssetResult;
+  public void setLargePLLinkedItemSchema(List<@Valid LargePLLinkedItemSchema> largePLLinkedItemSchema) {
+    this.largePLLinkedItemSchema = largePLLinkedItemSchema;
+  }
+
+  public ApiYearlyBudgetActualGet200Response middlePLLinkedItemSchema(List<@Valid MiddlePLLinkedItemSchema> middlePLLinkedItemSchema) {
+    this.middlePLLinkedItemSchema = middlePLLinkedItemSchema;
+    return this;
+  }
+
+  public ApiYearlyBudgetActualGet200Response addMiddlePLLinkedItemSchemaItem(MiddlePLLinkedItemSchema middlePLLinkedItemSchemaItem) {
+    if (this.middlePLLinkedItemSchema == null) {
+      this.middlePLLinkedItemSchema = new ArrayList<>();
+    }
+    this.middlePLLinkedItemSchema.add(middlePLLinkedItemSchemaItem);
+    return this;
+  }
+
+  /**
+   * Get middlePLLinkedItemSchema
+   * @return middlePLLinkedItemSchema
+  */
+  @Valid 
+  @Schema(name = "middlePLLinkedItemSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("middlePLLinkedItemSchema")
+  public List<@Valid MiddlePLLinkedItemSchema> getMiddlePLLinkedItemSchema() {
+    return middlePLLinkedItemSchema;
+  }
+
+  public void setMiddlePLLinkedItemSchema(List<@Valid MiddlePLLinkedItemSchema> middlePLLinkedItemSchema) {
+    this.middlePLLinkedItemSchema = middlePLLinkedItemSchema;
   }
 
   @Override
@@ -276,21 +218,16 @@ public class ApiYearlyBudgetActualGet200Response {
     }
     ApiYearlyBudgetActualGet200Response apiYearlyBudgetActualGet200Response = (ApiYearlyBudgetActualGet200Response) o;
     return Objects.equals(this.responseStatus, apiYearlyBudgetActualGet200Response.responseStatus) &&
-        Objects.equals(this.saleId, apiYearlyBudgetActualGet200Response.saleId) &&
-        Objects.equals(this.userId, apiYearlyBudgetActualGet200Response.userId) &&
-        Objects.equals(this.year, apiYearlyBudgetActualGet200Response.year) &&
-        Objects.equals(this.month, apiYearlyBudgetActualGet200Response.month) &&
-        Objects.equals(this.saleTarget, apiYearlyBudgetActualGet200Response.saleTarget) &&
-        Objects.equals(this.profitId, apiYearlyBudgetActualGet200Response.profitId) &&
-        Objects.equals(this.profitTarget, apiYearlyBudgetActualGet200Response.profitTarget) &&
-        Objects.equals(this.netAssetId, apiYearlyBudgetActualGet200Response.netAssetId) &&
-        Objects.equals(this.netAssetTarget, apiYearlyBudgetActualGet200Response.netAssetTarget) &&
-        Objects.equals(this.netAssetResult, apiYearlyBudgetActualGet200Response.netAssetResult);
+        Objects.equals(this.saleSchema, apiYearlyBudgetActualGet200Response.saleSchema) &&
+        Objects.equals(this.grossProfitSchema, apiYearlyBudgetActualGet200Response.grossProfitSchema) &&
+        Objects.equals(this.operatingProfitSchema, apiYearlyBudgetActualGet200Response.operatingProfitSchema) &&
+        Objects.equals(this.largePLLinkedItemSchema, apiYearlyBudgetActualGet200Response.largePLLinkedItemSchema) &&
+        Objects.equals(this.middlePLLinkedItemSchema, apiYearlyBudgetActualGet200Response.middlePLLinkedItemSchema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, saleId, userId, year, month, saleTarget, profitId, profitTarget, netAssetId, netAssetTarget, netAssetResult);
+    return Objects.hash(responseStatus, saleSchema, grossProfitSchema, operatingProfitSchema, largePLLinkedItemSchema, middlePLLinkedItemSchema);
   }
 
   @Override
@@ -298,16 +235,11 @@ public class ApiYearlyBudgetActualGet200Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class ApiYearlyBudgetActualGet200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
-    sb.append("    saleId: ").append(toIndentedString(saleId)).append("\n");
-    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
-    sb.append("    year: ").append(toIndentedString(year)).append("\n");
-    sb.append("    month: ").append(toIndentedString(month)).append("\n");
-    sb.append("    saleTarget: ").append(toIndentedString(saleTarget)).append("\n");
-    sb.append("    profitId: ").append(toIndentedString(profitId)).append("\n");
-    sb.append("    profitTarget: ").append(toIndentedString(profitTarget)).append("\n");
-    sb.append("    netAssetId: ").append(toIndentedString(netAssetId)).append("\n");
-    sb.append("    netAssetTarget: ").append(toIndentedString(netAssetTarget)).append("\n");
-    sb.append("    netAssetResult: ").append(toIndentedString(netAssetResult)).append("\n");
+    sb.append("    saleSchema: ").append(toIndentedString(saleSchema)).append("\n");
+    sb.append("    grossProfitSchema: ").append(toIndentedString(grossProfitSchema)).append("\n");
+    sb.append("    operatingProfitSchema: ").append(toIndentedString(operatingProfitSchema)).append("\n");
+    sb.append("    largePLLinkedItemSchema: ").append(toIndentedString(largePLLinkedItemSchema)).append("\n");
+    sb.append("    middlePLLinkedItemSchema: ").append(toIndentedString(middlePLLinkedItemSchema)).append("\n");
     sb.append("}");
     return sb.toString();
   }

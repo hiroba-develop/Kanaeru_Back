@@ -2,10 +2,17 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
-import com.example.Kanaeru_Back.model.AdminCommentSchema;
+import com.example.Kanaeru_Back.model.GrossProfitSchema;
+import com.example.Kanaeru_Back.model.LargeGoalSchema;
+import com.example.Kanaeru_Back.model.MainGoalSchema;
+import com.example.Kanaeru_Back.model.OperatingProfitSchema;
+import com.example.Kanaeru_Back.model.SaleSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -26,11 +33,16 @@ public class ApiHomeGet200Response {
 
   private Integer responseStatus;
 
-  private AdminCommentSchema adminCommentSchema;
+  private MainGoalSchema mainGoalSchema;
 
-  private Object quarterlyGoalSchema;
+  @Valid
+  private List<@Valid LargeGoalSchema> largeGoalSchema;
 
-  private Object quarterlyGoalTaskSchema;
+  private SaleSchema saleSchema;
+
+  private GrossProfitSchema grossProfitSchema;
+
+  private OperatingProfitSchema operatingProfitSchema;
 
   public ApiHomeGet200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
@@ -52,64 +64,112 @@ public class ApiHomeGet200Response {
     this.responseStatus = responseStatus;
   }
 
-  public ApiHomeGet200Response adminCommentSchema(AdminCommentSchema adminCommentSchema) {
-    this.adminCommentSchema = adminCommentSchema;
+  public ApiHomeGet200Response mainGoalSchema(MainGoalSchema mainGoalSchema) {
+    this.mainGoalSchema = mainGoalSchema;
     return this;
   }
 
   /**
-   * Get adminCommentSchema
-   * @return adminCommentSchema
+   * Get mainGoalSchema
+   * @return mainGoalSchema
   */
   @Valid 
-  @Schema(name = "adminCommentSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("adminCommentSchema")
-  public AdminCommentSchema getAdminCommentSchema() {
-    return adminCommentSchema;
+  @Schema(name = "mainGoalSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("mainGoalSchema")
+  public MainGoalSchema getMainGoalSchema() {
+    return mainGoalSchema;
   }
 
-  public void setAdminCommentSchema(AdminCommentSchema adminCommentSchema) {
-    this.adminCommentSchema = adminCommentSchema;
+  public void setMainGoalSchema(MainGoalSchema mainGoalSchema) {
+    this.mainGoalSchema = mainGoalSchema;
   }
 
-  public ApiHomeGet200Response quarterlyGoalSchema(Object quarterlyGoalSchema) {
-    this.quarterlyGoalSchema = quarterlyGoalSchema;
+  public ApiHomeGet200Response largeGoalSchema(List<@Valid LargeGoalSchema> largeGoalSchema) {
+    this.largeGoalSchema = largeGoalSchema;
+    return this;
+  }
+
+  public ApiHomeGet200Response addLargeGoalSchemaItem(LargeGoalSchema largeGoalSchemaItem) {
+    if (this.largeGoalSchema == null) {
+      this.largeGoalSchema = new ArrayList<>();
+    }
+    this.largeGoalSchema.add(largeGoalSchemaItem);
     return this;
   }
 
   /**
-   * Get quarterlyGoalSchema
-   * @return quarterlyGoalSchema
+   * Get largeGoalSchema
+   * @return largeGoalSchema
   */
-  
-  @Schema(name = "quarterlyGoalSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("quarterlyGoalSchema")
-  public Object getQuarterlyGoalSchema() {
-    return quarterlyGoalSchema;
+  @Valid 
+  @Schema(name = "largeGoalSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("largeGoalSchema")
+  public List<@Valid LargeGoalSchema> getLargeGoalSchema() {
+    return largeGoalSchema;
   }
 
-  public void setQuarterlyGoalSchema(Object quarterlyGoalSchema) {
-    this.quarterlyGoalSchema = quarterlyGoalSchema;
+  public void setLargeGoalSchema(List<@Valid LargeGoalSchema> largeGoalSchema) {
+    this.largeGoalSchema = largeGoalSchema;
   }
 
-  public ApiHomeGet200Response quarterlyGoalTaskSchema(Object quarterlyGoalTaskSchema) {
-    this.quarterlyGoalTaskSchema = quarterlyGoalTaskSchema;
+  public ApiHomeGet200Response saleSchema(SaleSchema saleSchema) {
+    this.saleSchema = saleSchema;
     return this;
   }
 
   /**
-   * Get quarterlyGoalTaskSchema
-   * @return quarterlyGoalTaskSchema
+   * Get saleSchema
+   * @return saleSchema
   */
-  
-  @Schema(name = "quarterlyGoalTaskSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("quarterlyGoalTaskSchema")
-  public Object getQuarterlyGoalTaskSchema() {
-    return quarterlyGoalTaskSchema;
+  @Valid 
+  @Schema(name = "saleSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("saleSchema")
+  public SaleSchema getSaleSchema() {
+    return saleSchema;
   }
 
-  public void setQuarterlyGoalTaskSchema(Object quarterlyGoalTaskSchema) {
-    this.quarterlyGoalTaskSchema = quarterlyGoalTaskSchema;
+  public void setSaleSchema(SaleSchema saleSchema) {
+    this.saleSchema = saleSchema;
+  }
+
+  public ApiHomeGet200Response grossProfitSchema(GrossProfitSchema grossProfitSchema) {
+    this.grossProfitSchema = grossProfitSchema;
+    return this;
+  }
+
+  /**
+   * Get grossProfitSchema
+   * @return grossProfitSchema
+  */
+  @Valid 
+  @Schema(name = "grossProfitSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("grossProfitSchema")
+  public GrossProfitSchema getGrossProfitSchema() {
+    return grossProfitSchema;
+  }
+
+  public void setGrossProfitSchema(GrossProfitSchema grossProfitSchema) {
+    this.grossProfitSchema = grossProfitSchema;
+  }
+
+  public ApiHomeGet200Response operatingProfitSchema(OperatingProfitSchema operatingProfitSchema) {
+    this.operatingProfitSchema = operatingProfitSchema;
+    return this;
+  }
+
+  /**
+   * Get operatingProfitSchema
+   * @return operatingProfitSchema
+  */
+  @Valid 
+  @Schema(name = "operatingProfitSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("operatingProfitSchema")
+  public OperatingProfitSchema getOperatingProfitSchema() {
+    return operatingProfitSchema;
+  }
+
+  public void setOperatingProfitSchema(OperatingProfitSchema operatingProfitSchema) {
+    this.operatingProfitSchema = operatingProfitSchema;
   }
 
   @Override
@@ -122,14 +182,16 @@ public class ApiHomeGet200Response {
     }
     ApiHomeGet200Response apiHomeGet200Response = (ApiHomeGet200Response) o;
     return Objects.equals(this.responseStatus, apiHomeGet200Response.responseStatus) &&
-        Objects.equals(this.adminCommentSchema, apiHomeGet200Response.adminCommentSchema) &&
-        Objects.equals(this.quarterlyGoalSchema, apiHomeGet200Response.quarterlyGoalSchema) &&
-        Objects.equals(this.quarterlyGoalTaskSchema, apiHomeGet200Response.quarterlyGoalTaskSchema);
+        Objects.equals(this.mainGoalSchema, apiHomeGet200Response.mainGoalSchema) &&
+        Objects.equals(this.largeGoalSchema, apiHomeGet200Response.largeGoalSchema) &&
+        Objects.equals(this.saleSchema, apiHomeGet200Response.saleSchema) &&
+        Objects.equals(this.grossProfitSchema, apiHomeGet200Response.grossProfitSchema) &&
+        Objects.equals(this.operatingProfitSchema, apiHomeGet200Response.operatingProfitSchema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, adminCommentSchema, quarterlyGoalSchema, quarterlyGoalTaskSchema);
+    return Objects.hash(responseStatus, mainGoalSchema, largeGoalSchema, saleSchema, grossProfitSchema, operatingProfitSchema);
   }
 
   @Override
@@ -137,9 +199,11 @@ public class ApiHomeGet200Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class ApiHomeGet200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
-    sb.append("    adminCommentSchema: ").append(toIndentedString(adminCommentSchema)).append("\n");
-    sb.append("    quarterlyGoalSchema: ").append(toIndentedString(quarterlyGoalSchema)).append("\n");
-    sb.append("    quarterlyGoalTaskSchema: ").append(toIndentedString(quarterlyGoalTaskSchema)).append("\n");
+    sb.append("    mainGoalSchema: ").append(toIndentedString(mainGoalSchema)).append("\n");
+    sb.append("    largeGoalSchema: ").append(toIndentedString(largeGoalSchema)).append("\n");
+    sb.append("    saleSchema: ").append(toIndentedString(saleSchema)).append("\n");
+    sb.append("    grossProfitSchema: ").append(toIndentedString(grossProfitSchema)).append("\n");
+    sb.append("    operatingProfitSchema: ").append(toIndentedString(operatingProfitSchema)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -2,6 +2,7 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
+import com.example.Kanaeru_Back.model.UserSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -16,18 +17,18 @@ import java.util.*;
 import jakarta.annotation.Generated;
 
 /**
- * ApiAuthRegistrationUserPost200Response
+ * ApiUpdateAdminUsersPut200Response
  */
 
-@JsonTypeName("_api_auth_registration_user_post_200_response")
+@JsonTypeName("_api_update_adminUsers_put_200_response")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ApiAuthRegistrationUserPost200Response {
+public class ApiUpdateAdminUsersPut200Response {
 
   private Integer responseStatus;
 
-  private String message;
+  private UserSchema userSchema;
 
-  public ApiAuthRegistrationUserPost200Response responseStatus(Integer responseStatus) {
+  public ApiUpdateAdminUsersPut200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
     return this;
   }
@@ -47,24 +48,24 @@ public class ApiAuthRegistrationUserPost200Response {
     this.responseStatus = responseStatus;
   }
 
-  public ApiAuthRegistrationUserPost200Response message(String message) {
-    this.message = message;
+  public ApiUpdateAdminUsersPut200Response userSchema(UserSchema userSchema) {
+    this.userSchema = userSchema;
     return this;
   }
 
   /**
-   * Get message
-   * @return message
+   * Get userSchema
+   * @return userSchema
   */
-  
-  @Schema(name = "message", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("message")
-  public String getMessage() {
-    return message;
+  @Valid 
+  @Schema(name = "userSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("userSchema")
+  public UserSchema getUserSchema() {
+    return userSchema;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setUserSchema(UserSchema userSchema) {
+    this.userSchema = userSchema;
   }
 
   @Override
@@ -75,22 +76,22 @@ public class ApiAuthRegistrationUserPost200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ApiAuthRegistrationUserPost200Response apiAuthRegistrationUserPost200Response = (ApiAuthRegistrationUserPost200Response) o;
-    return Objects.equals(this.responseStatus, apiAuthRegistrationUserPost200Response.responseStatus) &&
-        Objects.equals(this.message, apiAuthRegistrationUserPost200Response.message);
+    ApiUpdateAdminUsersPut200Response apiUpdateAdminUsersPut200Response = (ApiUpdateAdminUsersPut200Response) o;
+    return Objects.equals(this.responseStatus, apiUpdateAdminUsersPut200Response.responseStatus) &&
+        Objects.equals(this.userSchema, apiUpdateAdminUsersPut200Response.userSchema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, message);
+    return Objects.hash(responseStatus, userSchema);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ApiAuthRegistrationUserPost200Response {\n");
+    sb.append("class ApiUpdateAdminUsersPut200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("    userSchema: ").append(toIndentedString(userSchema)).append("\n");
     sb.append("}");
     return sb.toString();
   }

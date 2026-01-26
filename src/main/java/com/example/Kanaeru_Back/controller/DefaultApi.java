@@ -15,7 +15,9 @@ import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthResetPasswordPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthUpdatePasswordPutRequest;
 import com.example.Kanaeru_Back.model.ApiAvailabilityGet200Response;
-import com.example.Kanaeru_Back.model.ApiClientGet200Response;
+import com.example.Kanaeru_Back.model.ApiContactsSendPostRequest;
+import com.example.Kanaeru_Back.model.ApiGetAdminUsersGet200Response;
+import com.example.Kanaeru_Back.model.ApiGetUsersGet200Response;
 import com.example.Kanaeru_Back.model.ApiGrossProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiHomeGet200Response;
 import com.example.Kanaeru_Back.model.ApiLargeGoalsChartIdCreatePost200Response;
@@ -35,8 +37,8 @@ import com.example.Kanaeru_Back.model.ApiMiddleGoalsMiddleGoalIdUpdatePutRequest
 import com.example.Kanaeru_Back.model.ApiNetAssetUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiOperatingProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSaleUpdatePut200Response;
-import com.example.Kanaeru_Back.model.ApiSettingUpdateAdminPut200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUpdateUserPut200Response;
+import com.example.Kanaeru_Back.model.ApiSettingUserImagePost200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePost200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdGet200Response;
@@ -49,6 +51,7 @@ import com.example.Kanaeru_Back.model.ApiSupportReservationGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportSendPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportStreamGet200Response;
+import com.example.Kanaeru_Back.model.ApiUpdateAdminUsersPut200Response;
 import com.example.Kanaeru_Back.model.ApiYearlyBudgetActualGet200Response;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.example.Kanaeru_Back.model.GrossProfitSchema;
@@ -357,31 +360,115 @@ public interface DefaultApi {
 
 
     /**
-     * GET /api/client : クライアントユーザー取得
-     * 管理者・プラットフォームオーナーがログイン時に使用 管理者IDが紐づけされているユーザーを取得する responseStatusは成功時に1を返却、失敗時は0を返却 
+     * POST /api/contacts/send : お問い合わせ送信
+     *
+     * @param apiContactsSendPostRequest  (required)
+     * @return 送信成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiContactsSendPost",
+        summary = "お問い合わせ送信",
+        tags = { "お問い合わせ" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "送信成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthLogoutPost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/api/contacts/send",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthLogoutPost200Response> apiContactsSendPost(
+        @Parameter(name = "ApiContactsSendPostRequest", description = "", required = true) @Valid @RequestBody ApiContactsSendPostRequest apiContactsSendPostRequest
+    );
+
+
+    /**
+     * DELETE /api/delete/account : アカウント削除
+     * アカウント削除時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
      *
      * @param userId  (required)
+     * @return 削除成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiDeleteAccountDelete",
+        summary = "アカウント削除",
+        description = "アカウント削除時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "アカウント削除" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "削除成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthLogoutPost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.DELETE,
+        value = "/api/delete/account",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthLogoutPost200Response> apiDeleteAccountDelete(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
+    );
+
+
+    /**
+     * GET /api/get/adminUsers : 管理者ユーザーまたはプラットフォームユーザー取得
+     * 管理者ユーザーまたはプラットフォームユーザー取得時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
      * @return 取得成功 (status code 200)
      */
     @Operation(
-        operationId = "apiClientGet",
-        summary = "クライアントユーザー取得",
-        description = "管理者・プラットフォームオーナーがログイン時に使用 管理者IDが紐づけされているユーザーを取得する responseStatusは成功時に1を返却、失敗時は0を返却 ",
-        tags = { "認証" },
+        operationId = "apiGetAdminUsersGet",
+        summary = "管理者ユーザーまたはプラットフォームユーザー取得",
+        description = "管理者ユーザーまたはプラットフォームユーザー取得時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "管理者ユーザー管理" },
         responses = {
             @ApiResponse(responseCode = "200", description = "取得成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiClientGet200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiGetAdminUsersGet200Response.class))
             })
         }
     )
     @RequestMapping(
         method = RequestMethod.GET,
-        value = "/api/client",
+        value = "/api/get/adminUsers",
         produces = "application/json"
     )
     
-    ResponseEntity<ApiClientGet200Response> apiClientGet(
-        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
+    ResponseEntity<ApiGetAdminUsersGet200Response> apiGetAdminUsersGet(
+        
+    );
+
+
+    /**
+     * GET /api/get/users : ユーザー取得
+     * ユーザー取得時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
+     * @return 取得成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiGetUsersGet",
+        summary = "ユーザー取得",
+        description = "ユーザー取得時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "ユーザー取得" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "取得成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiGetUsersGet200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/get/users",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiGetUsersGet200Response> apiGetUsersGet(
+        
     );
 
 
@@ -1091,7 +1178,7 @@ public interface DefaultApi {
         tags = { "設定変更" },
         responses = {
             @ApiResponse(responseCode = "200", description = "取得成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSettingUpdateAdminPut200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiUpdateAdminUsersPut200Response.class))
             })
         }
     )
@@ -1101,7 +1188,7 @@ public interface DefaultApi {
         produces = "application/json"
     )
     
-    ResponseEntity<ApiSettingUpdateAdminPut200Response> apiSettingAdminGet(
+    ResponseEntity<ApiUpdateAdminUsersPut200Response> apiSettingAdminGet(
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
     );
 
@@ -1120,7 +1207,7 @@ public interface DefaultApi {
         tags = { "設定変更" },
         responses = {
             @ApiResponse(responseCode = "200", description = "更新成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSettingUpdateAdminPut200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiUpdateAdminUsersPut200Response.class))
             })
         }
     )
@@ -1131,7 +1218,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiSettingUpdateAdminPut200Response> apiSettingUpdateAdminPut(
+    ResponseEntity<ApiUpdateAdminUsersPut200Response> apiSettingUpdateAdminPut(
         @Parameter(name = "ApiAuthRegistrationAdminPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest
     );
 
@@ -1192,6 +1279,38 @@ public interface DefaultApi {
     
     ResponseEntity<ApiSettingUpdateUserPut200Response> apiSettingUserGet(
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
+    );
+
+
+    /**
+     * POST /api/setting/user/image : ユーザー画像登録
+     * ユーザー画像登録時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
+     * @param userId ユーザーID（必須） (required)
+     * @param imageFile 書影画像ファイル（jpg, png, gif, 最大5MB） (required)
+     * @return 登録成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSettingUserImagePost",
+        summary = "ユーザー画像登録",
+        description = "ユーザー画像登録時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "設定変更" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "登録成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSettingUserImagePost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/api/setting/user/image",
+        produces = "application/json",
+        consumes = "multipart/form-data"
+    )
+    
+    ResponseEntity<ApiSettingUserImagePost200Response> apiSettingUserImagePost(
+        @Parameter(name = "userId", description = "ユーザーID（必須）", required = true) @Valid @RequestParam(value = "userId", required = true) String userId,
+        @Parameter(name = "imageFile", description = "書影画像ファイル（jpg, png, gif, 最大5MB）", required = true) @RequestPart(value = "imageFile", required = true) MultipartFile imageFile
     );
 
 
@@ -1623,8 +1742,38 @@ public interface DefaultApi {
 
 
     /**
+     * PUT /api/update/adminUsers : 管理者ユーザーまたはプラットフォームユーザー更新
+     * ユーザー登録時使用(管理者・プラットフォームオーナー) responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
+     * @param apiAuthRegistrationAdminPostRequest  (required)
+     * @return 更新成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiUpdateAdminUsersPut",
+        summary = "管理者ユーザーまたはプラットフォームユーザー更新",
+        description = "ユーザー登録時使用(管理者・プラットフォームオーナー) responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "管理者ユーザー管理" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "更新成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiUpdateAdminUsersPut200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        value = "/api/update/adminUsers",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiUpdateAdminUsersPut200Response> apiUpdateAdminUsersPut(
+        @Parameter(name = "ApiAuthRegistrationAdminPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest
+    );
+
+
+    /**
      * GET /api/yearlyBudgetActual : 予実管理(年次)画面 初期表示
-     * ロードマップ設定画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     * 予実管理(年次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
      *
      * @param userId  (required)
      * @return 取得成功 (status code 200)
@@ -1632,7 +1781,7 @@ public interface DefaultApi {
     @Operation(
         operationId = "apiYearlyBudgetActualGet",
         summary = "予実管理(年次)画面 初期表示",
-        description = "ロードマップ設定画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        description = "予実管理(年次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
         tags = { "画面初期表示" },
         responses = {
             @ApiResponse(responseCode = "200", description = "取得成功", content = {

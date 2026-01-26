@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -36,21 +35,39 @@ public class UserService {
 
         try {
             Optional<UserEntity> userOptional = userRepository.findById(userId);
+            
+            if (userOptional.isEmpty()) {
+                response.setResponseStatus(0);
+                return response;
+            }
+            
+            UserEntity user = userOptional.get();
+            String role = user.getRole();
             Optional<SettingEntity> settingOptional = settingRepository.findByUserId(userId);
             Optional<SlackWebhookSettingEntity> webhookOptional = slackWebhookSettingRepository.findByUserId(userId);
 
-            if (userOptional.isPresent() && settingOptional.isPresent()) {
-                UserEntity user = userOptional.get();
-                SettingEntity setting = settingOptional.get();
-
-                UserSchema userSchema = convertToUserSchema(user, webhookOptional);
-                SettingSchema settingSchema = convertToSettingSchema(setting);
-
+            UserSchema userSchema = convertToUserSchema(user, webhookOptional);
+            
+            // role が 1（管理者）または 2（プラットフォームオーナー）の場合、SettingEntity がなくてもOK
+            if ("1".equals(role) || "2".equals(role)) {
                 response.setResponseStatus(1);
                 response.setUserSchema(userSchema);
-                response.setSettingSchema(settingSchema);
+                // SettingSchema は存在すれば設定、なければ null
+                if (settingOptional.isPresent()) {
+                    response.setSettingSchema(convertToSettingSchema(settingOptional.get()));
+                } else {
+                    response.setSettingSchema(null);
+                }
             } else {
-                response.setResponseStatus(0);
+                // role が 0（一般ユーザー）の場合は、SettingEntity が必須
+                if (settingOptional.isPresent()) {
+                    SettingSchema settingSchema = convertToSettingSchema(settingOptional.get());
+                    response.setResponseStatus(1);
+                    response.setUserSchema(userSchema);
+                    response.setSettingSchema(settingSchema);
+                } else {
+                    response.setResponseStatus(0);
+                }
             }
         } catch (Exception e) {
             response.setResponseStatus(0);
@@ -71,23 +88,42 @@ public class UserService {
             }
 
             Optional<UserEntity> userOptional = userRepository.findById(userId);
-            Optional<SettingEntity> settingOptional = settingRepository.findByUserId(userId);
-
-            if (userOptional.isPresent() && settingOptional.isPresent()) {
-                UserEntity user = userOptional.get();
-                SettingEntity setting = settingOptional.get();
-                LocalDateTime now = LocalDateTime.now();
-
-                updateUserEntity(user, userSchema, now);
-                updateSettingEntity(setting, settingSchema, now);
-                updateWebhookSetting(userId, userSchema.getWebhookUrl(), now);
-
-                userRepository.save(user);
-                settingRepository.save(setting);
-
+            
+            if (userOptional.isEmpty()) {
+                response.setResponseStatus(0);
+                return response;
+            }
+            
+            UserEntity user = userOptional.get();
+            String role = user.getRole();
+            LocalDateTime now = LocalDateTime.now();
+            
+            // UserEntity は常に更新
+            updateUserEntity(user, userSchema, now);
+            updateWebhookSetting(userId, userSchema.getWebhookUrl(), now);
+            userRepository.save(user);
+            
+            // role が 1（管理者）または 2（プラットフォームオーナー）の場合、SettingEntity はオプショナル
+            if ("1".equals(role) || "2".equals(role)) {
+                Optional<SettingEntity> settingOptional = settingRepository.findByUserId(userId);
+                // SettingEntity が存在し、かつ settingSchema が渡されている場合のみ更新
+                if (settingOptional.isPresent() && settingSchema != null) {
+                    SettingEntity setting = settingOptional.get();
+                    updateSettingEntity(setting, settingSchema, now);
+                    settingRepository.save(setting);
+                }
                 return getUserSetting(userId);
             } else {
-                response.setResponseStatus(0);
+                // role が 0（一般ユーザー）の場合は、SettingEntity が必須
+                Optional<SettingEntity> settingOptional = settingRepository.findByUserId(userId);
+                if (settingOptional.isPresent()) {
+                    SettingEntity setting = settingOptional.get();
+                    updateSettingEntity(setting, settingSchema, now);
+                    settingRepository.save(setting);
+                    return getUserSetting(userId);
+                } else {
+                    response.setResponseStatus(0);
+                }
             }
         } catch (Exception e) {
             response.setResponseStatus(0);
