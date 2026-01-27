@@ -34,8 +34,10 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		// 本番環境とローカル環境のオリジンを明示的に指定
 		configuration.setAllowedOrigins(List.of(
-				"https://kanaeru.com",
-				"http://kanaeru.com",
+				"https://kanaeru.etomoji.co.jp",
+				"http://kanaeru.etomoji.co.jp",
+				"https://staging.kanaeru.etomoji.co.jp",
+				"http://staging.kanaeru.etomoji.co.jp",
 				"http://13.114.155.51:5180",
 				"http://35.74.40.37:5180",
 				"http://localhost:5180"));
