@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
@@ -18,14 +20,42 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+	                      JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+	}
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
+						// OPTIONS リクエストは全て許可（CORS プリフライト）
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.anyRequest().permitAll());
+						
+						// 認証不要のエンドポイント
+						.requestMatchers("/api/auth/login").permitAll()
+						.requestMatchers("/api/auth/registration/**").permitAll()
+						.requestMatchers("/api/auth/forgotPassword").permitAll()
+						.requestMatchers("/api/auth/resetPassword").permitAll()
+						.requestMatchers("/actuator/**").permitAll()
+						
+						// その他全てのエンドポイントは認証が必要
+						.anyRequest().authenticated()
+				)
+				// 認証エラー時のハンドラー
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+				)
+				// JWT認証フィルターをUsernamePasswordAuthenticationFilterの前に追加
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		
 		return http.build();
 	}
 

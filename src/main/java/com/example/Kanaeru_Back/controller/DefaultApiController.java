@@ -238,53 +238,19 @@ public class DefaultApiController implements DefaultApi {
         ApiAuthLogoutPost200Response response = new ApiAuthLogoutPost200Response();
         
         try {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attributes == null) {
-                logger.error("RequestContextHolder.getRequestAttributes() returned null");
+            // SecurityContextから認証済みユーザーIDを取得
+            org.springframework.security.core.Authentication authentication = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                logger.warn("認証情報が見つかりません");
                 response.setResponseStatus(0);
-                response.setMessage("リクエスト情報が取得できません");
+                response.setMessage("認証が必要です");
                 return ResponseEntity.ok(response);
             }
             
-            jakarta.servlet.http.HttpServletRequest request = attributes.getRequest();
-            
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null) {
-                authorizationHeader = request.getHeader("authorization");
-            }
-            
-            logger.debug("Authorization header: {}", authorizationHeader != null ? "present" : "null");
-            logger.debug("All headers: {}", java.util.Collections.list(request.getHeaderNames()));
-            
-            if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
-                logger.warn("Authorization header is missing or empty");
-                response.setResponseStatus(0);
-                response.setMessage("認証トークンがありません。リクエストヘッダーに「Authorization: Bearer <token>」を含めてください。");
-                return ResponseEntity.ok(response);
-            }
-            
-            authorizationHeader = authorizationHeader.trim();
-            String token;
-            if (authorizationHeader.startsWith("Bearer ")) {
-                token = authorizationHeader.substring(7);
-            } else if (authorizationHeader.startsWith("Bearer")) {
-                token = authorizationHeader.substring(6).trim();
-            } else {
-                logger.warn("Authorization header does not start with 'Bearer': {}", authorizationHeader);
-                response.setResponseStatus(0);
-                response.setMessage("認証トークンの形式が正しくありません。「Bearer <token>」の形式で送信してください。");
-                return ResponseEntity.ok(response);
-            }
-            
-            if (token == null || token.isEmpty()) {
-                logger.warn("Token is empty after extracting from Authorization header");
-                response.setResponseStatus(0);
-                response.setMessage("認証トークンが空です");
-                return ResponseEntity.ok(response);
-            }
-            
-            String userId = jwtUtil.extractUserId(token);
-            logger.debug("Extracted userId from token: {}", userId);
+            String userId = (String) authentication.getPrincipal();
+            logger.debug("Authenticated userId: {}", userId);
             
             response = updatePasswordService.updatePassword(
                     userId,
@@ -348,46 +314,23 @@ public class DefaultApiController implements DefaultApi {
         ApiHomeGet200Response response = new ApiHomeGet200Response();
         
         try {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attributes == null) {
-                logger.error("RequestContextHolder.getRequestAttributes() returned null");
+            // SecurityContextから認証済みユーザー情報を取得
+            org.springframework.security.core.Authentication authentication = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                logger.warn("認証情報が見つかりません");
                 response.setResponseStatus(0);
                 return ResponseEntity.ok(response);
             }
             
-            jakarta.servlet.http.HttpServletRequest request = attributes.getRequest();
+            String loggedInUserId = (String) authentication.getPrincipal();
             
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null) {
-                authorizationHeader = request.getHeader("authorization");
-            }
-            
-            if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
-                logger.warn("Authorization header is missing or empty");
-                response.setResponseStatus(0);
-                return ResponseEntity.ok(response);
-            }
-            
-            authorizationHeader = authorizationHeader.trim();
-            String token;
-            if (authorizationHeader.startsWith("Bearer ")) {
-                token = authorizationHeader.substring(7);
-            } else if (authorizationHeader.startsWith("Bearer")) {
-                token = authorizationHeader.substring(6).trim();
-            } else {
-                logger.warn("Authorization header does not start with 'Bearer': {}", authorizationHeader);
-                response.setResponseStatus(0);
-                return ResponseEntity.ok(response);
-            }
-            
-            if (token == null || token.isEmpty()) {
-                logger.warn("Token is empty after extracting from Authorization header");
-                response.setResponseStatus(0);
-                return ResponseEntity.ok(response);
-            }
-            
-            String loggedInUserId = jwtUtil.extractUserId(token);
-            String role = jwtUtil.extractRole(token);
+            // ロール情報を取得
+            String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                .orElse("0");
             
             logger.debug("apiHomeGet - loggedInUserId: {}, role: {}, userId param: {}", loggedInUserId, role, userId);
             
