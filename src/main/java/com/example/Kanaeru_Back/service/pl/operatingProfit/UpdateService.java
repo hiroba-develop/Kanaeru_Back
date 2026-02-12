@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.operatingProfit;
+package com.example.Kanaeru_Back.service.pl.operatingProfit;
 
 import com.example.Kanaeru_Back.entity.OperatingProfitEntity;
 import com.example.Kanaeru_Back.model.ApiOperatingProfitUpdatePut200Response;

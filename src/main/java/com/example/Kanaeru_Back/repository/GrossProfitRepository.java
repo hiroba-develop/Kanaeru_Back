@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GrossProfitRepository extends JpaRepository<GrossProfitEntity, GrossProfitEntity.GrossProfitId> {
@@ -62,4 +63,14 @@ public interface GrossProfitRepository extends JpaRepository<GrossProfitEntity, 
      */
     @Query("SELECT COALESCE(SUM(g.grossProfitResult), 0) FROM GrossProfitEntity g WHERE g.userId = :userId AND g.year = :year")
     Long sumGrossProfitResultByUserIdAndYear(@Param("userId") String userId, @Param("year") Integer year);
+
+    /**
+     * ユーザーID、年、月で粗利益データを取得
+     * 
+     * @param userId ユーザーID
+     * @param year 年
+     * @param month 月
+     * @return 粗利益エンティティ（Optional）
+     */
+    Optional<GrossProfitEntity> findByUserIdAndYearAndMonth(String userId, Integer year, Integer month);
 }

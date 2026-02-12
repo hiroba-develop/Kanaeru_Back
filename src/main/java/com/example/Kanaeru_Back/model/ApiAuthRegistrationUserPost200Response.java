@@ -25,8 +25,6 @@ public class ApiAuthRegistrationUserPost200Response {
 
   private Integer responseStatus;
 
-  private String message;
-
   public ApiAuthRegistrationUserPost200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
     return this;
@@ -47,26 +45,6 @@ public class ApiAuthRegistrationUserPost200Response {
     this.responseStatus = responseStatus;
   }
 
-  public ApiAuthRegistrationUserPost200Response message(String message) {
-    this.message = message;
-    return this;
-  }
-
-  /**
-   * Get message
-   * @return message
-  */
-  
-  @Schema(name = "message", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("message")
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -76,13 +54,12 @@ public class ApiAuthRegistrationUserPost200Response {
       return false;
     }
     ApiAuthRegistrationUserPost200Response apiAuthRegistrationUserPost200Response = (ApiAuthRegistrationUserPost200Response) o;
-    return Objects.equals(this.responseStatus, apiAuthRegistrationUserPost200Response.responseStatus) &&
-        Objects.equals(this.message, apiAuthRegistrationUserPost200Response.message);
+    return Objects.equals(this.responseStatus, apiAuthRegistrationUserPost200Response.responseStatus);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, message);
+    return Objects.hash(responseStatus);
   }
 
   @Override
@@ -90,7 +67,6 @@ public class ApiAuthRegistrationUserPost200Response {
     StringBuilder sb = new StringBuilder();
     sb.append("class ApiAuthRegistrationUserPost200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
     sb.append("}");
     return sb.toString();
   }

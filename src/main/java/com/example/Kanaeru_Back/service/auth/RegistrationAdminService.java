@@ -47,7 +47,6 @@ public class RegistrationAdminService {
             if (userSchema.getEmail() != null && userRepository.findByEmail(userSchema.getEmail()).isPresent()) {
                 logger.warn("Email already exists: {}", userSchema.getEmail());
                 response.setResponseStatus(0);
-                response.setMessage("既に登録されているメールアドレスです");
                 return response;
             }
 

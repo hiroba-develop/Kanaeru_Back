@@ -69,6 +69,7 @@ import com.example.Kanaeru_Back.service.mandalaChart.UpdateMainGoalService;
 import com.example.Kanaeru_Back.service.setting.UserService;
 import com.example.Kanaeru_Back.service.setting.UserImageService;
 import com.example.Kanaeru_Back.service.screenDisplay.YearlyBudgetActualService;
+import com.example.Kanaeru_Back.service.monthlyBudgetActual.MonthlyBudgetActualService;
 import com.example.Kanaeru_Back.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 public class DefaultApiController implements DefaultApi {
@@ -125,31 +127,31 @@ public class DefaultApiController implements DefaultApi {
     private UpdateMainGoalService updateMainGoalService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.largeGoals.CreateService largeGoalCreateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.largeGoals.CreateService largeGoalCreateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.largeGoals.UpdateService largeGoalUpdateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.largeGoals.UpdateService largeGoalUpdateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.largeGoals.GetMiddleGoalsService getMiddleGoalsService;
+    private com.example.Kanaeru_Back.service.mandalaChart.largeGoals.GetMiddleGoalsService getMiddleGoalsService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.middleGoals.CreateService middleGoalCreateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.middleGoals.CreateService middleGoalCreateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.middleGoals.UpdateService middleGoalUpdateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.middleGoals.UpdateService middleGoalUpdateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.smallGoals.GetService smallGoalGetService;
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.GetService smallGoalGetService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.smallGoals.CreateService smallGoalCreateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.CreateService smallGoalCreateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.smallGoals.UpdateService smallGoalUpdateService;
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.UpdateService smallGoalUpdateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.smallGoals.CompleteService smallGoalCompleteService;
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.CompleteService smallGoalCompleteService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -158,13 +160,16 @@ public class DefaultApiController implements DefaultApi {
     private YearlyBudgetActualService yearlyBudgetActualService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.sale.UpdateService saleUpdateService;
+    private MonthlyBudgetActualService monthlyBudgetActualService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.grossProfit.UpdateService grossProfitUpdateService;
+    private com.example.Kanaeru_Back.service.pl.sale.UpdateService saleUpdateService;
 
     @Autowired
-    private com.example.Kanaeru_Back.service.operatingProfit.UpdateService operatingProfitUpdateService;
+    private com.example.Kanaeru_Back.service.pl.grossProfit.UpdateService grossProfitUpdateService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.pl.operatingProfit.UpdateService operatingProfitUpdateService;
 
     @Autowired
     @Qualifier("getAdminUsersService")
@@ -636,6 +641,19 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiYearlyBudgetActualGet200Response> apiYearlyBudgetActualGet(String userId) {
         ApiYearlyBudgetActualGet200Response response = yearlyBudgetActualService.getYearlyBudgetActual(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiYearlyBudgetActualGet200Response> apiMonthlyBudgetActualGet(
+            String userId, Integer year, Integer startMonth) {
+        // 初期表示時は現在の年・月を使用
+        LocalDateTime now = LocalDateTime.now();
+        Integer targetYear = (year != null) ? year : now.getYear();
+        Integer targetStartMonth = (startMonth != null) ? startMonth : now.getMonthValue();
+        
+        ApiYearlyBudgetActualGet200Response response = monthlyBudgetActualService.getMonthlyBudgetActual(
+                userId, targetYear, targetStartMonth);
         return ResponseEntity.ok(response);
     }
 

@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.grossProfit;
+package com.example.Kanaeru_Back.service.pl.grossProfit;
 
 import com.example.Kanaeru_Back.entity.GrossProfitEntity;
 import com.example.Kanaeru_Back.model.ApiGrossProfitUpdatePut200Response;

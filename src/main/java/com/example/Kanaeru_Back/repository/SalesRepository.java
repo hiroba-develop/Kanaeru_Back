@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SalesRepository extends JpaRepository<SalesEntity, SalesEntity.SalesId> {
@@ -62,4 +63,14 @@ public interface SalesRepository extends JpaRepository<SalesEntity, SalesEntity.
      */
     @Query("SELECT COALESCE(SUM(s.saleResult), 0) FROM SalesEntity s WHERE s.userId = :userId AND s.year = :year")
     Long sumSaleResultByUserIdAndYear(@Param("userId") String userId, @Param("year") Integer year);
+
+    /**
+     * ユーザーID、年、月で売上データを取得
+     * 
+     * @param userId ユーザーID
+     * @param year 年
+     * @param month 月
+     * @return 売上エンティティ（Optional）
+     */
+    Optional<SalesEntity> findByUserIdAndYearAndMonth(String userId, Integer year, Integer month);
 }

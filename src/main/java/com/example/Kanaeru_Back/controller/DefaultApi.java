@@ -1075,6 +1075,39 @@ public interface DefaultApi {
 
 
     /**
+     * GET /api/monthlyBudgetActual : 予実管理(月次)画面 初期表示
+     * 予実管理(月次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
+     * @param userId  (required)
+     * @param year  (required)
+     * @param startMonth  (required)
+     * @return 取得成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiMonthlyBudgetActualGet",
+        summary = "予実管理(月次)画面 初期表示",
+        description = "予実管理(月次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "画面初期表示" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "取得成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiYearlyBudgetActualGet200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/monthlyBudgetActual",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiYearlyBudgetActualGet200Response> apiMonthlyBudgetActualGet(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId,
+        @NotNull @Parameter(name = "year", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "year", required = true) Integer year,
+        @NotNull @Parameter(name = "startMonth", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "startMonth", required = true) Integer startMonth
+    );
+
+
+    /**
      * PUT /api/netAsset/update : 純資産更新
      * 純資産更新時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
      *
@@ -1773,7 +1806,7 @@ public interface DefaultApi {
 
     /**
      * GET /api/yearlyBudgetActual : 予実管理(年次)画面 初期表示
-     * 予実管理(年次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 
+     * 予実管理(年次)画面初期表示時使用 saleSchema, grossProfitSchema, operatingProfitSchemaは12ヶ月分のデータをセットする responseStatusは成功時に1を返却、失敗時は0を返却 
      *
      * @param userId  (required)
      * @return 取得成功 (status code 200)
@@ -1781,7 +1814,7 @@ public interface DefaultApi {
     @Operation(
         operationId = "apiYearlyBudgetActualGet",
         summary = "予実管理(年次)画面 初期表示",
-        description = "予実管理(年次)画面初期表示時使用 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        description = "予実管理(年次)画面初期表示時使用 saleSchema, grossProfitSchema, operatingProfitSchemaは12ヶ月分のデータをセットする responseStatusは成功時に1を返却、失敗時は0を返却 ",
         tags = { "画面初期表示" },
         responses = {
             @ApiResponse(responseCode = "200", description = "取得成功", content = {

@@ -72,9 +72,6 @@ public class RegistrationUserService {
 
             if (registrationError != null) {
                 response.setResponseStatus(0);
-                if (registrationError.equals("EMAIL_EXISTS")) {
-                    response.setMessage("このメールアドレスでは登録できません");
-                }
                 return response;
             }
 
@@ -173,7 +170,7 @@ public class RegistrationUserService {
 
     /**
      * 事業年度開始年月から10年分のレコードをSALES、GROSS_PROFITS、OPERATING_PROFITSテーブルに作成
-     * 事業年度開始月を基準に、1年1レコードずつ10レコードを作成
+     * 事業年度開始月を基準に、10年分×12か月（120レコード）を作成
      * 
      * @param userId ユーザーID
      * @param fiscalYearStartYear 事業年度開始年
@@ -185,37 +182,51 @@ public class RegistrationUserService {
         List<GrossProfitEntity> grossProfitEntities = new ArrayList<>();
         List<OperatingProfitEntity> operatingProfitEntities = new ArrayList<>();
 
-        // 事業年度開始年月から10年分（10レコード）を作成
-        // 例：2025年8月が事業年度開始年月の場合、2025年8月、2026年8月、...、2034年8月
-        for (int i = 0; i < 10; i++) {
-            int currentYear = fiscalYearStartYear + i;
-            
-            // SALESテーブル
-            SalesEntity salesEntity = new SalesEntity();
-            salesEntity.setUserId(userId);
-            salesEntity.setYear(currentYear);
-            salesEntity.setMonth(fiscalYearStartMonth);
-            salesEntity.setCreatedAt(now);
-            salesEntity.setUpdatedAt(now);
-            salesEntities.add(salesEntity);
+        // 事業年度開始年月から10年分×12か月（120レコード）を作成
+        // 例：2025年8月が事業年度開始年月の場合
+        // 1年目: 2025/8-12, 2026/1-7
+        // 2年目: 2026/8-12, 2027/1-7
+        // ...
+        // 10年目: 2034/8-12, 2035/1-7
+        for (int yearOffset = 0; yearOffset < 10; yearOffset++) {
+            for (int monthOffset = 0; monthOffset < 12; monthOffset++) {
+                // 現在の年月を計算
+                int currentMonth = fiscalYearStartMonth + monthOffset;
+                int currentYear = fiscalYearStartYear + yearOffset;
+                
+                // 月が13以上の場合、年を繰り上げて月を調整
+                if (currentMonth > 12) {
+                    currentYear += (currentMonth - 1) / 12;
+                    currentMonth = ((currentMonth - 1) % 12) + 1;
+                }
+                
+                // SALESテーブル
+                SalesEntity salesEntity = new SalesEntity();
+                salesEntity.setUserId(userId);
+                salesEntity.setYear(currentYear);
+                salesEntity.setMonth(currentMonth);
+                salesEntity.setCreatedAt(now);
+                salesEntity.setUpdatedAt(now);
+                salesEntities.add(salesEntity);
 
-            // GROSS_PROFITSテーブル
-            GrossProfitEntity grossProfitEntity = new GrossProfitEntity();
-            grossProfitEntity.setUserId(userId);
-            grossProfitEntity.setYear(currentYear);
-            grossProfitEntity.setMonth(fiscalYearStartMonth);
-            grossProfitEntity.setCreatedAt(now);
-            grossProfitEntity.setUpdatedAt(now);
-            grossProfitEntities.add(grossProfitEntity);
+                // GROSS_PROFITSテーブル
+                GrossProfitEntity grossProfitEntity = new GrossProfitEntity();
+                grossProfitEntity.setUserId(userId);
+                grossProfitEntity.setYear(currentYear);
+                grossProfitEntity.setMonth(currentMonth);
+                grossProfitEntity.setCreatedAt(now);
+                grossProfitEntity.setUpdatedAt(now);
+                grossProfitEntities.add(grossProfitEntity);
 
-            // OPERATING_PROFITSテーブル
-            OperatingProfitEntity operatingProfitEntity = new OperatingProfitEntity();
-            operatingProfitEntity.setUserId(userId);
-            operatingProfitEntity.setYear(currentYear);
-            operatingProfitEntity.setMonth(fiscalYearStartMonth);
-            operatingProfitEntity.setCreatedAt(now);
-            operatingProfitEntity.setUpdatedAt(now);
-            operatingProfitEntities.add(operatingProfitEntity);
+                // OPERATING_PROFITSテーブル
+                OperatingProfitEntity operatingProfitEntity = new OperatingProfitEntity();
+                operatingProfitEntity.setUserId(userId);
+                operatingProfitEntity.setYear(currentYear);
+                operatingProfitEntity.setMonth(currentMonth);
+                operatingProfitEntity.setCreatedAt(now);
+                operatingProfitEntity.setUpdatedAt(now);
+                operatingProfitEntities.add(operatingProfitEntity);
+            }
         }
 
         // 一括保存
@@ -223,7 +234,7 @@ public class RegistrationUserService {
         grossProfitRepository.saveAll(grossProfitEntities);
         operatingProfitRepository.saveAll(operatingProfitEntities);
         
-        logger.info("Created initial records for userId: {}, fiscal year: {}/{}", 
-            userId, fiscalYearStartYear, fiscalYearStartMonth);
+        logger.info("Created {} initial records (10 years x 12 months) for userId: {}, fiscal year start: {}/{}", 
+            salesEntities.size(), userId, fiscalYearStartYear, fiscalYearStartMonth);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OperatingProfitRepository extends JpaRepository<OperatingProfitEntity, OperatingProfitEntity.OperatingProfitId> {
@@ -62,4 +63,14 @@ public interface OperatingProfitRepository extends JpaRepository<OperatingProfit
      */
     @Query("SELECT COALESCE(SUM(o.operatingProfitResult), 0) FROM OperatingProfitEntity o WHERE o.userId = :userId AND o.year = :year")
     Long sumOperatingProfitResultByUserIdAndYear(@Param("userId") String userId, @Param("year") Integer year);
+
+    /**
+     * ユーザーID、年、月で営業利益データを取得
+     * 
+     * @param userId ユーザーID
+     * @param year 年
+     * @param month 月
+     * @return 営業利益エンティティ（Optional）
+     */
+    Optional<OperatingProfitEntity> findByUserIdAndYearAndMonth(String userId, Integer year, Integer month);
 }

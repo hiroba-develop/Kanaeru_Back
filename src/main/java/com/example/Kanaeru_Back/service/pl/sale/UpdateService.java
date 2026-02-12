@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.sale;
+package com.example.Kanaeru_Back.service.pl.sale;
 
 import com.example.Kanaeru_Back.entity.SalesEntity;
 import com.example.Kanaeru_Back.model.ApiSaleUpdatePut200Response;

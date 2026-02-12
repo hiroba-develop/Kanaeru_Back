@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.screenDisplay;
+package com.example.Kanaeru_Back.service.monthlyBudgetActual;
 
 import com.example.Kanaeru_Back.entity.GrossProfitEntity;
 import com.example.Kanaeru_Back.entity.LargeGoalEntity;
@@ -7,7 +7,6 @@ import com.example.Kanaeru_Back.entity.MandalaChartEntity;
 import com.example.Kanaeru_Back.entity.MiddleGoalEntity;
 import com.example.Kanaeru_Back.entity.OperatingProfitEntity;
 import com.example.Kanaeru_Back.entity.SalesEntity;
-import com.example.Kanaeru_Back.entity.SettingEntity;
 import com.example.Kanaeru_Back.model.ApiYearlyBudgetActualGet200Response;
 import com.example.Kanaeru_Back.model.GrossProfitSchema;
 import com.example.Kanaeru_Back.model.LargePLLinkedItemSchema;
@@ -21,7 +20,6 @@ import com.example.Kanaeru_Back.repository.MiddleGoalRepository;
 import com.example.Kanaeru_Back.repository.MainGoalRepository;
 import com.example.Kanaeru_Back.repository.OperatingProfitRepository;
 import com.example.Kanaeru_Back.repository.SalesRepository;
-import com.example.Kanaeru_Back.repository.SettingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class YearlyBudgetActualService {
-
-    @Autowired
-    private SettingRepository settingRepository;
+public class MonthlyBudgetActualService {
 
     @Autowired
     private SalesRepository salesRepository;
@@ -58,64 +53,68 @@ public class YearlyBudgetActualService {
     private MiddleGoalRepository middleGoalRepository;
 
     /**
-     * 予実管理(年次)画面の初期表示データを取得
-     * 事業年度開始年月から10年分のデータを取得し、各年度の12ヶ月分を合算
+     * 予実管理(月次)画面の初期表示データを取得
+     * 事業開始月から12か月分（1年分）のデータを取得
      * 
      * @param userId ユーザーID
+     * @param year 年
+     * @param startMonth 事業開始月
      * @return レスポンス
      */
-    public ApiYearlyBudgetActualGet200Response getYearlyBudgetActual(String userId) {
+    public ApiYearlyBudgetActualGet200Response getMonthlyBudgetActual(String userId, Integer year, Integer startMonth) {
         ApiYearlyBudgetActualGet200Response response = new ApiYearlyBudgetActualGet200Response();
 
         try {
-            // SETTINGSテーブルから事業年度開始年月を取得
-            Optional<SettingEntity> settingOpt = settingRepository.findByUserId(userId);
-            if (settingOpt.isEmpty() || settingOpt.get().getFiscalYearStartYear() == null 
-                || settingOpt.get().getFiscalYearStartMonth() == null) {
-                response.setResponseStatus(0);
-                return response;
+            // 終了年月を計算（開始月から12か月後）
+            Integer endYear = year;
+            Integer endMonth = startMonth + 11;
+            
+            // 月が12を超える場合、年を繰り上げ
+            if (endMonth > 12) {
+                endYear = year + 1;
+                endMonth = endMonth - 12;
             }
 
-            SettingEntity setting = settingOpt.get();
-            Integer fiscalYearStartYear = setting.getFiscalYearStartYear();
-            Integer fiscalYearStartMonth = setting.getFiscalYearStartMonth();
+            // 各テーブルから事業開始月から12か月分のデータを取得
+            List<SalesEntity> salesEntities = salesRepository.findByUserIdAndYearMonthRange(
+                userId, year, startMonth, endYear, endMonth);
+            List<GrossProfitEntity> grossProfitEntities = grossProfitRepository.findByUserIdAndYearMonthRange(
+                userId, year, startMonth, endYear, endMonth);
+            List<OperatingProfitEntity> operatingProfitEntities = operatingProfitRepository.findByUserIdAndYearMonthRange(
+                userId, year, startMonth, endYear, endMonth);
 
-            // 10年分の年次データを生成
+            // EntityをSchemaに変換（リスト形式）
             List<SaleSchema> saleSchemas = new ArrayList<>();
+            for (SalesEntity salesEntity : salesEntities) {
+                SaleSchema schema = new SaleSchema();
+                schema.setUserId(salesEntity.getUserId());
+                schema.setYear(salesEntity.getYear());
+                schema.setMonth(salesEntity.getMonth());
+                schema.setSaleTarget(salesEntity.getSaleTarget() != null ? BigDecimal.valueOf(salesEntity.getSaleTarget()) : null);
+                schema.setSaleResult(salesEntity.getSaleResult() != null ? BigDecimal.valueOf(salesEntity.getSaleResult()) : null);
+                saleSchemas.add(schema);
+            }
+
             List<GrossProfitSchema> grossProfitSchemas = new ArrayList<>();
+            for (GrossProfitEntity grossProfitEntity : grossProfitEntities) {
+                GrossProfitSchema schema = new GrossProfitSchema();
+                schema.setUserId(grossProfitEntity.getUserId());
+                schema.setYear(grossProfitEntity.getYear());
+                schema.setMonth(grossProfitEntity.getMonth());
+                schema.setGrossProfitTarget(grossProfitEntity.getGrossProfitTarget() != null ? BigDecimal.valueOf(grossProfitEntity.getGrossProfitTarget()) : null);
+                schema.setGrossProfitResult(grossProfitEntity.getGrossProfitResult() != null ? BigDecimal.valueOf(grossProfitEntity.getGrossProfitResult()) : null);
+                grossProfitSchemas.add(schema);
+            }
+
             List<OperatingProfitSchema> operatingProfitSchemas = new ArrayList<>();
-
-            for (int i = 0; i < 10; i++) {
-                int targetFiscalYear = fiscalYearStartYear + i;
-                
-                // 年度の開始年月と終了年月を計算
-                int startYear = targetFiscalYear;
-                int startMonth = fiscalYearStartMonth;
-                int endYear = targetFiscalYear;
-                int endMonth = fiscalYearStartMonth + 11;
-                
-                // 月が12を超える場合、年を繰り上げ
-                if (endMonth > 12) {
-                    endYear = targetFiscalYear + 1;
-                    endMonth = endMonth - 12;
-                }
-
-                // 各テーブルから該当年度の12ヶ月分のデータを取得
-                List<SalesEntity> salesEntities = salesRepository.findByUserIdAndYearMonthRange(
-                    userId, startYear, startMonth, endYear, endMonth);
-                List<GrossProfitEntity> grossProfitEntities = grossProfitRepository.findByUserIdAndYearMonthRange(
-                    userId, startYear, startMonth, endYear, endMonth);
-                List<OperatingProfitEntity> operatingProfitEntities = operatingProfitRepository.findByUserIdAndYearMonthRange(
-                    userId, startYear, startMonth, endYear, endMonth);
-
-                // 12ヶ月分のデータを合算
-                SaleSchema saleSchema = aggregateSales(userId, targetFiscalYear, fiscalYearStartMonth, salesEntities);
-                GrossProfitSchema grossProfitSchema = aggregateGrossProfits(userId, targetFiscalYear, fiscalYearStartMonth, grossProfitEntities);
-                OperatingProfitSchema operatingProfitSchema = aggregateOperatingProfits(userId, targetFiscalYear, fiscalYearStartMonth, operatingProfitEntities);
-
-                saleSchemas.add(saleSchema);
-                grossProfitSchemas.add(grossProfitSchema);
-                operatingProfitSchemas.add(operatingProfitSchema);
+            for (OperatingProfitEntity operatingProfitEntity : operatingProfitEntities) {
+                OperatingProfitSchema schema = new OperatingProfitSchema();
+                schema.setUserId(operatingProfitEntity.getUserId());
+                schema.setYear(operatingProfitEntity.getYear());
+                schema.setMonth(operatingProfitEntity.getMonth());
+                schema.setOperatingProfitTarget(operatingProfitEntity.getOperatingProfitTarget() != null ? BigDecimal.valueOf(operatingProfitEntity.getOperatingProfitTarget()) : null);
+                schema.setOperatingProfitResult(operatingProfitEntity.getOperatingProfitResult() != null ? BigDecimal.valueOf(operatingProfitEntity.getOperatingProfitResult()) : null);
+                operatingProfitSchemas.add(schema);
             }
 
             // PL連動項目を取得（大目標と中目標でGOAL_TYPEが2~4の項目）
@@ -134,105 +133,6 @@ public class YearlyBudgetActualService {
         }
 
         return response;
-    }
-
-    /**
-     * 売上データを合算
-     * 
-     * @param userId ユーザーID
-     * @param year 対象年度
-     * @param month 事業年度開始月
-     * @param salesEntities 売上エンティティのリスト
-     * @return 合算された売上スキーマ
-     */
-    private SaleSchema aggregateSales(String userId, Integer year, Integer month, List<SalesEntity> salesEntities) {
-        SaleSchema schema = new SaleSchema();
-        schema.setUserId(userId);
-        schema.setYear(year);
-        schema.setMonth(month);
-        
-        long targetSum = 0L;
-        long resultSum = 0L;
-        
-        for (SalesEntity entity : salesEntities) {
-            if (entity.getSaleTarget() != null) {
-                targetSum += entity.getSaleTarget();
-            }
-            if (entity.getSaleResult() != null) {
-                resultSum += entity.getSaleResult();
-            }
-        }
-        
-        schema.setSaleTarget(BigDecimal.valueOf(targetSum));
-        schema.setSaleResult(BigDecimal.valueOf(resultSum));
-        
-        return schema;
-    }
-
-    /**
-     * 粗利益データを合算
-     * 
-     * @param userId ユーザーID
-     * @param year 対象年度
-     * @param month 事業年度開始月
-     * @param grossProfitEntities 粗利益エンティティのリスト
-     * @return 合算された粗利益スキーマ
-     */
-    private GrossProfitSchema aggregateGrossProfits(String userId, Integer year, Integer month, List<GrossProfitEntity> grossProfitEntities) {
-        GrossProfitSchema schema = new GrossProfitSchema();
-        schema.setUserId(userId);
-        schema.setYear(year);
-        schema.setMonth(month);
-        
-        long targetSum = 0L;
-        long resultSum = 0L;
-        
-        for (GrossProfitEntity entity : grossProfitEntities) {
-            if (entity.getGrossProfitTarget() != null) {
-                targetSum += entity.getGrossProfitTarget();
-            }
-            if (entity.getGrossProfitResult() != null) {
-                resultSum += entity.getGrossProfitResult();
-            }
-        }
-        
-        schema.setGrossProfitTarget(BigDecimal.valueOf(targetSum));
-        schema.setGrossProfitResult(BigDecimal.valueOf(resultSum));
-        
-        return schema;
-    }
-
-    /**
-     * 営業利益データを合算
-     * 
-     * @param userId ユーザーID
-     * @param year 対象年度
-     * @param month 事業年度開始月
-     * @param operatingProfitEntities 営業利益エンティティのリスト
-     * @return 合算された営業利益スキーマ
-     */
-    private OperatingProfitSchema aggregateOperatingProfits(String userId, Integer year, Integer month, List<OperatingProfitEntity> operatingProfitEntities) {
-        OperatingProfitSchema schema = new OperatingProfitSchema();
-        schema.setUserId(userId);
-        schema.setYear(year);
-        schema.setMonth(month);
-        
-        long targetSum = 0L;
-        long resultSum = 0L;
-        
-        for (OperatingProfitEntity entity : operatingProfitEntities) {
-            if (entity.getOperatingProfitTarget() != null) {
-                targetSum += entity.getOperatingProfitTarget();
-            }
-            if (entity.getOperatingProfitResult() != null) {
-                resultSum += entity.getOperatingProfitResult();
-            }
-        }
-        
-        schema.setOperatingProfitTarget(BigDecimal.valueOf(targetSum));
-        schema.setOperatingProfitResult(BigDecimal.valueOf(resultSum));
-        
-        return schema;
     }
 
     /**
@@ -269,7 +169,6 @@ public class YearlyBudgetActualService {
                         LargePLLinkedItemSchema schema = new LargePLLinkedItemSchema();
                         schema.setLargeGoalId(entity.getLargeGoalId());
                         schema.setGoalType(entity.getGoalType());
-                        // target_yearはそのまま使用（絶対年として）
                         schema.setTargetYear(entity.getTargetYear());
                         schema.setTargetAmount(entity.getTargetAmount());
                         schemas.add(schema);
@@ -322,7 +221,6 @@ public class YearlyBudgetActualService {
                             MiddlePLLinkedItemSchema schema = new MiddlePLLinkedItemSchema();
                             schema.setMiddleGoalId(entity.getMiddleGoalId());
                             schema.setGoalType(entity.getGoalType());
-                            // target_yearはそのまま使用（絶対年として）
                             schema.setTargetYear(entity.getTargetYear());
                             schema.setTargetAmount(entity.getTargetAmount());
                             schemas.add(schema);

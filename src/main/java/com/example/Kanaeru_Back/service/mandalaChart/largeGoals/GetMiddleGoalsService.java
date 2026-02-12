@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.largeGoals;
+package com.example.Kanaeru_Back.service.mandalaChart.largeGoals;
 
 import com.example.Kanaeru_Back.entity.MiddleGoalEntity;
 import com.example.Kanaeru_Back.model.ApiMiddleGoalsLargeGoalIdGet200Response;

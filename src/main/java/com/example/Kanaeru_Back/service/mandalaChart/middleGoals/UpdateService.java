@@ -1,4 +1,4 @@
-package com.example.Kanaeru_Back.service.middleGoals;
+package com.example.Kanaeru_Back.service.mandalaChart.middleGoals;
 
 import com.example.Kanaeru_Back.entity.MiddleGoalEntity;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response;
