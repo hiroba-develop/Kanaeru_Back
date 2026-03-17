@@ -5,7 +5,9 @@ import com.example.Kanaeru_Back.model.ApiAuthLoginPost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationAdminPostRequest;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthResetPasswordPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthUpdatePasswordPutRequest;
@@ -33,6 +35,7 @@ import com.example.Kanaeru_Back.model.ApiNetAssetUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiOperatingProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSaleUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUpdateUserPut200Response;
+import com.example.Kanaeru_Back.model.ApiSettingUserGet200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUserImagePost200Response;
 import com.example.Kanaeru_Back.model.ApiUpdateAdminUsersPut200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePost200Response;
@@ -40,13 +43,21 @@ import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePostRequest
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdGet200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdCompletePut200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdDetailGet200Response;
+import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdReorderPostRequest;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationAllGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationApprovalPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportReservationGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportSendPostRequest;
-import com.example.Kanaeru_Back.model.ApiSupportStreamGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportUnreadStatusGet200Response;
+import com.example.Kanaeru_Back.service.support.ReadService;
+import com.example.Kanaeru_Back.service.support.SendService;
+import com.example.Kanaeru_Back.service.support.StreamService;
+import com.example.Kanaeru_Back.service.support.SupportService;
+import com.example.Kanaeru_Back.service.support.UnreadStatusService;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.example.Kanaeru_Back.model.ApiYearlyBudgetActualGet200Response;
 import com.example.Kanaeru_Back.model.GrossProfitSchema;
 import com.example.Kanaeru_Back.model.NetAssetsSchema;
@@ -58,6 +69,7 @@ import com.example.Kanaeru_Back.service.auth.LogoutService;
 import com.example.Kanaeru_Back.service.auth.RegistrationAdminService;
 import com.example.Kanaeru_Back.service.auth.RegistrationUserService;
 import com.example.Kanaeru_Back.service.auth.ResetPasswordService;
+import com.example.Kanaeru_Back.service.auth.TermsAgreeService;
 import com.example.Kanaeru_Back.service.auth.UpdatePasswordService;
 import com.example.Kanaeru_Back.service.contacts.ContactsService;
 import com.example.Kanaeru_Back.service.users.delete.AccountService;
@@ -103,6 +115,9 @@ public class DefaultApiController implements DefaultApi {
 
     @Autowired
     private UpdatePasswordService updatePasswordService;
+
+    @Autowired
+    private TermsAgreeService termsAgreeService;
 
     @Autowired
     private ForgotPasswordService forgotPasswordService;
@@ -154,6 +169,12 @@ public class DefaultApiController implements DefaultApi {
     private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.CompleteService smallGoalCompleteService;
 
     @Autowired
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.ReorderService smallGoalReorderService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.mandalaChart.smallGoals.DeleteService smallGoalDeleteService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
@@ -191,22 +212,49 @@ public class DefaultApiController implements DefaultApi {
     @Autowired
     private com.example.Kanaeru_Back.service.screenDisplay.HomeService homeService;
 
+    @Autowired
+    private SupportService supportService;
+
+    @Autowired
+    private SendService sendService;
+
+    @Autowired
+    private ReadService readService;
+
+    @Autowired
+    private StreamService streamService;
+
+    @Autowired
+    private UnreadStatusService unreadStatusService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.support.advice.CreateService adviceCreateService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.support.advice.GetService adviceGetService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.support.advice.UpdateService adviceUpdateService;
+
+    @Autowired
+    private com.example.Kanaeru_Back.service.support.advice.DeleteService adviceDeleteService;
+
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationUserPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthRegistrationUserPost(
             ApiAuthRegistrationUserPostRequest apiAuthRegistrationUserPostRequest) {
-        ApiAuthRegistrationUserPost200Response response = registrationUserService.registerUser(apiAuthRegistrationUserPostRequest);
+        ApiAuthTermsAgreePost200Response response = registrationUserService.registerUser(apiAuthRegistrationUserPostRequest);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthDeleteDelete(String userId) {
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthDeleteDelete(String userId) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthForgotPasswordPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthForgotPasswordPost(
             ApiAuthForgotPasswordPostRequest apiAuthForgotPasswordPostRequest) {
-        ApiAuthRegistrationUserPost200Response response = forgotPasswordService.sendPasswordResetEmail(apiAuthForgotPasswordPostRequest);
+        ApiAuthTermsAgreePost200Response response = forgotPasswordService.sendPasswordResetEmail(apiAuthForgotPasswordPostRequest);
         return ResponseEntity.ok(response);
     }
 
@@ -224,16 +272,16 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationAdminPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthRegistrationAdminPost(
             ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest) {
-        ApiAuthRegistrationUserPost200Response response = registrationAdminService.registerAdmin(apiAuthRegistrationAdminPostRequest);
+        ApiAuthTermsAgreePost200Response response = registrationAdminService.registerAdmin(apiAuthRegistrationAdminPostRequest);
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthResetPasswordPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthResetPasswordPost(
             ApiAuthResetPasswordPostRequest apiAuthResetPasswordPostRequest) {
-        ApiAuthRegistrationUserPost200Response response = resetPasswordService.resetPassword(apiAuthResetPasswordPostRequest);
+        ApiAuthTermsAgreePost200Response response = resetPasswordService.resetPassword(apiAuthResetPasswordPostRequest);
         return ResponseEntity.ok(response);
     }
 
@@ -341,7 +389,8 @@ public class DefaultApiController implements DefaultApi {
             
             // role:0の場合は自分のユーザーID、role:1または2の場合は選択されているユーザーIDを使用
             String targetUserId;
-            if ("0".equals(role)) {
+            if ("0".equals(role) || "3".equals(role) || "4".equals(role)) {
+                // 無料・有料ユーザーはログインユーザー自身のデータを取得
                 targetUserId = loggedInUserId;
             } else if ("1".equals(role) || "2".equals(role)) {
                 if (userId == null || userId.isEmpty()) {
@@ -407,7 +456,7 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsChartIdDeleteDelete(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsChartIdDeleteDelete(
             String chartId, String userId) {
         throw new UnsupportedOperationException("Not implemented");
     }
@@ -432,15 +481,15 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsChartIdUpdatePut(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsChartIdUpdatePut(
             String chartId, ApiMandalaChartsChartIdUpdatePutRequest apiMandalaChartsChartIdUpdatePutRequest) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsCreatePost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsCreatePost(
             ApiMandalaChartsCreatePostRequest apiMandalaChartsCreatePostRequest) {
-        ApiAuthRegistrationUserPost200Response response = createService.createMandalaChart(apiMandalaChartsCreatePostRequest);
+        ApiAuthTermsAgreePost200Response response = createService.createMandalaChart(apiMandalaChartsCreatePostRequest);
         return ResponseEntity.ok(response);
     }
 
@@ -521,8 +570,8 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiSettingUpdateUserPut200Response> apiSettingUserGet(String userId) {
-        ApiSettingUpdateUserPut200Response response = userService.getUserSetting(userId);
+    public ResponseEntity<ApiSettingUserGet200Response> apiSettingUserGet(String userId) {
+        ApiSettingUserGet200Response response = userService.getUserSetting(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -570,13 +619,22 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiAuthLogoutPost200Response> apiSmallGoalsSmallGoalIdDeleteDelete(
             String smallGoalId) {
-        throw new UnsupportedOperationException("Not implemented");
+        ApiAuthLogoutPost200Response response = smallGoalDeleteService.deleteSmallGoal(smallGoalId);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<ApiSmallGoalsSmallGoalIdDetailGet200Response> apiSmallGoalsSmallGoalIdDetailGet(
             String smallGoalId) {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthLogoutPost200Response> apiSmallGoalsSmallGoalIdReorderPost(
+            String smallGoalId, ApiSmallGoalsSmallGoalIdReorderPostRequest apiSmallGoalsSmallGoalIdReorderPostRequest) {
+        ApiAuthLogoutPost200Response response = smallGoalReorderService.reorderSmallGoal(
+                smallGoalId, apiSmallGoalsSmallGoalIdReorderPostRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -587,14 +645,110 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiSupportGet200Response> apiSupportGet(String userId, String selecteId) {
-        throw new UnsupportedOperationException("Not implemented");
+    public ResponseEntity<com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response> apiSupportAdviceDeleteDelete(String adviceId) {
+        com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response response =
+                new com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response();
+        try {
+            response = adviceDeleteService.deleteAdvice(adviceId);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportAdviceDeleteDelete", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<ApiSupportGet200Response> apiSupportReadGet(
+    public ResponseEntity<com.example.Kanaeru_Back.model.ApiSupportAdviceGet200Response> apiSupportAdviceGet(
+            String userId, Integer year, Integer month) {
+        com.example.Kanaeru_Back.model.ApiSupportAdviceGet200Response response =
+                new com.example.Kanaeru_Back.model.ApiSupportAdviceGet200Response();
+        try {
+            if (year != null && month != null) {
+                response = adviceGetService.getAdvice(userId, year, month);
+            } else {
+                response = adviceGetService.getAllAdvice(userId);
+            }
+        } catch (Exception e) {
+            logger.error("Error in apiSupportAdviceGet", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportAdviceUpdatePut(
+            com.example.Kanaeru_Back.model.ApiSupportAdviceUpdatePutRequest apiSupportAdviceUpdatePutRequest) {
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
+        try {
+            response = adviceUpdateService.updateAdvice(apiSupportAdviceUpdatePutRequest);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportAdviceUpdatePut", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiSupportAdviceCreatePost200Response> apiSupportAdviceCreatePost(
+            ApiSupportAdviceCreatePostRequest apiSupportAdviceCreatePostRequest) {
+        ApiSupportAdviceCreatePost200Response response = new ApiSupportAdviceCreatePost200Response();
+        try {
+            org.springframework.security.core.Authentication authentication =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+
+            String adminId = (String) authentication.getPrincipal();
+            response = adviceCreateService.createAdvice(apiSupportAdviceCreatePostRequest, adminId);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportAdviceCreatePost", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiSupportGet200Response> apiSupportGet(String selecteId) {
+        ApiSupportGet200Response response = new ApiSupportGet200Response();
+        try {
+            org.springframework.security.core.Authentication authentication =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                response.setResponseStatus(0);
+                return ResponseEntity.ok(response);
+            }
+
+            String loggedInUserId = (String) authentication.getPrincipal();
+            response = supportService.getSupportData(loggedInUserId, selecteId);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportGet", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<com.example.Kanaeru_Back.model.ApiSupportReadGet200Response> apiSupportReadGet(
             String senderId, String recipientId, String content, Integer messageSeq) {
-        throw new UnsupportedOperationException("Not implemented");
+        com.example.Kanaeru_Back.model.ApiSupportReadGet200Response response =
+                readService.markAsRead(senderId, recipientId, messageSeq);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiSupportUnreadStatusGet200Response> apiSupportUnreadStatusGet(String userId) {
+        ApiSupportUnreadStatusGet200Response response = new ApiSupportUnreadStatusGet200Response();
+        try {
+            response = unreadStatusService.getUnreadStatus(userId);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportUnreadStatusGet", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -604,7 +758,7 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationApprovalPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationApprovalPost(
             ApiSupportReservationApprovalPostRequest apiSupportReservationApprovalPostRequest) {
         throw new UnsupportedOperationException("Not implemented");
     }
@@ -616,26 +770,34 @@ public class DefaultApiController implements DefaultApi {
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationPost(
             ApiSupportReservationPostRequest apiSupportReservationPostRequest) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationRejectPost(
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationRejectPost(
             ApiSupportReservationApprovalPostRequest apiSupportReservationApprovalPostRequest) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public ResponseEntity<ApiSupportGet200Response> apiSupportSendPost(
+    public ResponseEntity<com.example.Kanaeru_Back.model.ApiSupportSendPost200Response> apiSupportSendPost(
             ApiSupportSendPostRequest apiSupportSendPostRequest) {
-        throw new UnsupportedOperationException("Not implemented");
+        com.example.Kanaeru_Back.model.ApiSupportSendPost200Response response = sendService.send(apiSupportSendPostRequest);
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<ApiSupportStreamGet200Response> apiSupportStreamGet(String userId) {
-        throw new UnsupportedOperationException("Not implemented");
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<com.example.Kanaeru_Back.model.ApiSupportStreamGet200Response> apiSupportStreamGet(String userId) {
+        SseEmitter emitter = streamService.createConnection(userId);
+        return (ResponseEntity<com.example.Kanaeru_Back.model.ApiSupportStreamGet200Response>)
+                (ResponseEntity<?>) ResponseEntity.ok()
+                        .header("Content-Type", "text/event-stream")
+                        .header("Cache-Control", "no-cache")
+                        .header("Connection", "keep-alive")
+                        .body(emitter);
     }
 
     @Override
@@ -667,6 +829,13 @@ public class DefaultApiController implements DefaultApi {
     @Override
     public ResponseEntity<ApiAuthLogoutPost200Response> apiDeleteAccountDelete(String userId) {
         ApiAuthLogoutPost200Response response = accountService.deleteAccount(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthTermsAgreePost(
+            ApiAuthTermsAgreePostRequest apiAuthTermsAgreePostRequest) {
+        ApiAuthTermsAgreePost200Response response = termsAgreeService.agreeToTerms(apiAuthTermsAgreePostRequest);
         return ResponseEntity.ok(response);
     }
 }

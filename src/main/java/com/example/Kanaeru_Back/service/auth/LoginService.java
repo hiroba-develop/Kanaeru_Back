@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -24,7 +25,7 @@ public class LoginService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ApiAuthLoginPost200Response login(String email, String passwordHash) {
         ApiAuthLoginPost200Response response = new ApiAuthLoginPost200Response();
 
@@ -42,6 +43,13 @@ public class LoginService {
                     if (settingOptional.isPresent()) {
                         userImageUrl = settingOptional.get().getUserImageUrl();
                     }
+
+                    // レスポンスには更新前の値をセット（初回ログインはnull）
+                    LocalDateTime previousLastLoginAt = user.getLastLoginAt();
+
+                    // lastLoginAt を現在時刻で更新
+                    user.setLastLoginAt(LocalDateTime.now());
+                    userRepository.save(user);
                     
                     response.setResponseStatus(1);
                     response.setUserId(user.getUserId());
@@ -50,6 +58,8 @@ public class LoginService {
                     response.setRole(user.getRole());
                     response.setToken(token);
                     response.setUserImageUrl(userImageUrl);
+                    response.setTermsAgreedAt(user.getTermsAgreedAt());
+                    response.setLastLoginAt(previousLastLoginAt);
                 } else {
                     response.setResponseStatus(0);
                 }

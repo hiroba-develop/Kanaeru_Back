@@ -2,7 +2,7 @@ package com.example.Kanaeru_Back.service.auth;
 
 import com.example.Kanaeru_Back.entity.UserEntity;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationAdminPostRequest;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.model.UserSchema;
 import com.example.Kanaeru_Back.repository.UserRepository;
 import org.slf4j.Logger;
@@ -23,8 +23,8 @@ public class RegistrationAdminService {
     private UserRepository userRepository;
 
     @Transactional
-    public ApiAuthRegistrationUserPost200Response registerAdmin(ApiAuthRegistrationAdminPostRequest request) {
-        ApiAuthRegistrationUserPost200Response response = new ApiAuthRegistrationUserPost200Response();
+    public ApiAuthTermsAgreePost200Response registerAdmin(ApiAuthRegistrationAdminPostRequest request) {
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
 
         try {
             UserSchema userSchema = request.getUserSchema();

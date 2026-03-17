@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, String> {
     
     Optional<UserEntity> findByEmail(String email);
+
+    Optional<UserEntity> findByUserIdAndDelFlg(String userId, String delFlg);
     
     Optional<UserEntity> findByEmailAndPasswordHash(String email, String passwordHash);
     
@@ -19,5 +21,6 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     List<UserEntity> findByRoleAndDelFlg(String role, String delFlg);
     
     List<UserEntity> findByRoleInAndDelFlg(List<String> roles, String delFlg);
+
 }
 

@@ -143,7 +143,59 @@ public class EmailTemplateService {
             return false;
         }
     }
+    /**
+     * 有料プランアップグレード完了メールを送信
+     */
+    public boolean sendSubscriptionUpgradedEmail(String email, String userName) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+            String upgradeDate = LocalDateTime.now().format(formatter);
+    
+            Map<String, String> variables = new HashMap<>();
+            variables.put("name", userName != null ? userName : "お客様");
+            variables.put("upgradeDate", upgradeDate);
+            variables.put("supportEmail", supportEmail);
+    
+            boolean sent = emailService.sendTemplatedEmail(email, EmailTemplate.SUBSCRIPTION_UPGRADED, variables);
+    
+            if (sent) {
+                logger.info("Subscription upgraded email sent to: {}", email);
+            } else {
+                logger.error("Failed to send subscription upgraded email to: {}", email);
+            }
+    
+            return sent;
+        } catch (Exception e) {
+            logger.error("Error sending subscription upgraded email to: {}", email, e);
+            return false;
+        }
+    }
 
+    /**
+     * 解約予約完了メールを送信
+     */
+    public boolean sendSubscriptionCanceledEmail(String email, String userName, String canceledDate, String periodEnd) {
+        try {
+            Map<String, String> variables = new HashMap<>();
+            variables.put("name", userName != null ? userName : "お客様");
+            variables.put("periodEnd", periodEnd);
+            variables.put("supportEmail", supportEmail);
+            variables.put("canceledDate", canceledDate);
+
+            boolean sent = emailService.sendTemplatedEmail(email, EmailTemplate.SUBSCRIPTION_CANCELED, variables);
+
+            if (sent) {
+                logger.info("Subscription canceled email sent to: {}", email);
+            } else {
+                logger.error("Failed to send subscription canceled email to: {}", email);
+            }
+
+            return sent;
+        } catch (Exception e) {
+            logger.error("Error sending subscription canceled email to: {}", email, e);
+            return false;
+        }
+    }
     /**
      * テンプレートのプレビューを取得（開発・デバッグ用）
      */

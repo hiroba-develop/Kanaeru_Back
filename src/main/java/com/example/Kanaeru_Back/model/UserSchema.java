@@ -49,6 +49,9 @@ public class UserSchema {
 
   private String webhookUrl;
 
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private LocalDateTime termsAgreedAt;
+
   public UserSchema userId(String userId) {
     this.userId = userId;
     return this;
@@ -289,6 +292,26 @@ public class UserSchema {
     this.webhookUrl = webhookUrl;
   }
 
+  public UserSchema termsAgreedAt(LocalDateTime termsAgreedAt) {
+    this.termsAgreedAt = termsAgreedAt;
+    return this;
+  }
+
+  /**
+   * Get termsAgreedAt
+   * @return termsAgreedAt
+  */
+  @Valid 
+  @Schema(name = "termsAgreedAt", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("termsAgreedAt")
+  public LocalDateTime getTermsAgreedAt() {
+    return termsAgreedAt;
+  }
+
+  public void setTermsAgreedAt(LocalDateTime termsAgreedAt) {
+    this.termsAgreedAt = termsAgreedAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -309,12 +332,13 @@ public class UserSchema {
         Objects.equals(this.updatedAt, userSchema.updatedAt) &&
         Objects.equals(this.businessStartHour, userSchema.businessStartHour) &&
         Objects.equals(this.businessEndHour, userSchema.businessEndHour) &&
-        Objects.equals(this.webhookUrl, userSchema.webhookUrl);
+        Objects.equals(this.webhookUrl, userSchema.webhookUrl) &&
+        Objects.equals(this.termsAgreedAt, userSchema.termsAgreedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, email, passwordHash, name, company, role, delFlg, createdAt, updatedAt, businessStartHour, businessEndHour, webhookUrl);
+    return Objects.hash(userId, email, passwordHash, name, company, role, delFlg, createdAt, updatedAt, businessStartHour, businessEndHour, webhookUrl, termsAgreedAt);
   }
 
   @Override
@@ -333,6 +357,7 @@ public class UserSchema {
     sb.append("    businessStartHour: ").append(toIndentedString(businessStartHour)).append("\n");
     sb.append("    businessEndHour: ").append(toIndentedString(businessEndHour)).append("\n");
     sb.append("    webhookUrl: ").append(toIndentedString(webhookUrl)).append("\n");
+    sb.append("    termsAgreedAt: ").append(toIndentedString(termsAgreedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

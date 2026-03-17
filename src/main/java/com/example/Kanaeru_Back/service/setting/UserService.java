@@ -2,12 +2,16 @@ package com.example.Kanaeru_Back.service.setting;
 
 import com.example.Kanaeru_Back.entity.SettingEntity;
 import com.example.Kanaeru_Back.entity.SlackWebhookSettingEntity;
+import com.example.Kanaeru_Back.entity.SubscriptionEntity;
 import com.example.Kanaeru_Back.entity.UserEntity;
 import com.example.Kanaeru_Back.model.ApiSettingUpdateUserPut200Response;
+import com.example.Kanaeru_Back.model.ApiSettingUserGet200Response;
 import com.example.Kanaeru_Back.model.SettingSchema;
+import com.example.Kanaeru_Back.model.SubscriptionSchema;
 import com.example.Kanaeru_Back.model.UserSchema;
 import com.example.Kanaeru_Back.repository.SettingRepository;
 import com.example.Kanaeru_Back.repository.SlackWebhookSettingRepository;
+import com.example.Kanaeru_Back.repository.SubscriptionRepository;
 import com.example.Kanaeru_Back.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,9 +33,12 @@ public class UserService {
     @Autowired
     private SlackWebhookSettingRepository slackWebhookSettingRepository;
 
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
     @Transactional(readOnly = true)
-    public ApiSettingUpdateUserPut200Response getUserSetting(String userId) {
-        ApiSettingUpdateUserPut200Response response = new ApiSettingUpdateUserPut200Response();
+    public ApiSettingUserGet200Response getUserSetting(String userId) {
+        ApiSettingUserGet200Response response = new ApiSettingUserGet200Response();
 
         try {
             Optional<UserEntity> userOptional = userRepository.findById(userId);
@@ -47,7 +54,12 @@ public class UserService {
             Optional<SlackWebhookSettingEntity> webhookOptional = slackWebhookSettingRepository.findByUserId(userId);
 
             UserSchema userSchema = convertToUserSchema(user, webhookOptional);
-            
+
+            // サブスクリプション情報を取得
+            Optional<SubscriptionEntity> subscriptionOptional = subscriptionRepository.findByUserId(userId);
+            subscriptionOptional.ifPresent(subscription ->
+                    response.setSubscriptionSchema(convertToSubscriptionSchema(subscription)));
+
             // role が 1（管理者）または 2（プラットフォームオーナー）の場合、SettingEntity がなくてもOK
             if ("1".equals(role) || "2".equals(role)) {
                 response.setResponseStatus(1);
@@ -112,7 +124,11 @@ public class UserService {
                     updateSettingEntity(setting, settingSchema, now);
                     settingRepository.save(setting);
                 }
-                return getUserSetting(userId);
+                ApiSettingUserGet200Response getResponse = getUserSetting(userId);
+                response.setResponseStatus(getResponse.getResponseStatus());
+                response.setUserSchema(getResponse.getUserSchema());
+                response.setSettingSchema(getResponse.getSettingSchema());
+                return response;
             } else {
                 // role が 0（一般ユーザー）の場合は、SettingEntity が必須
                 Optional<SettingEntity> settingOptional = settingRepository.findByUserId(userId);
@@ -120,7 +136,10 @@ public class UserService {
                     SettingEntity setting = settingOptional.get();
                     updateSettingEntity(setting, settingSchema, now);
                     settingRepository.save(setting);
-                    return getUserSetting(userId);
+                    ApiSettingUserGet200Response getResponse = getUserSetting(userId);
+                    response.setResponseStatus(getResponse.getResponseStatus());
+                    response.setUserSchema(getResponse.getUserSchema());
+                    response.setSettingSchema(getResponse.getSettingSchema());
                 } else {
                     response.setResponseStatus(0);
                 }
@@ -203,6 +222,19 @@ public class UserService {
         }
     }
 
+    private SubscriptionSchema convertToSubscriptionSchema(SubscriptionEntity entity) {
+        SubscriptionSchema schema = new SubscriptionSchema();
+        schema.setId(entity.getStripeSubscriptionId());
+        schema.setStatus(entity.getStatus());
+        schema.setCurrentPeriodStart(entity.getCurrentPeriodStart());
+        schema.setCurrentPeriodEnd(entity.getCurrentPeriodEnd());
+        schema.setCancelAtPeriodEnd(entity.getCancelAtPeriodEnd());
+        schema.setCanceledAt(entity.getCanceledAt());
+        schema.setAmount(entity.getAmount());
+        schema.setCreatedAt(entity.getCreatedAt());
+        return schema;
+    }
+
     private UserSchema convertToUserSchema(UserEntity user, Optional<SlackWebhookSettingEntity> webhookOptional) {
         UserSchema userSchema = new UserSchema();
         userSchema.setUserId(user.getUserId());
@@ -224,7 +256,8 @@ public class UserService {
         userSchema.setUpdatedAt(user.getUpdatedAt());
         userSchema.setBusinessStartHour(user.getBusinessStartHour());
         userSchema.setBusinessEndHour(user.getBusinessEndHour());
-        
+        userSchema.setTermsAgreedAt(user.getTermsAgreedAt());
+
         if (webhookOptional.isPresent()) {
             userSchema.setWebhookUrl(webhookOptional.get().getWebhookUrl());
         }

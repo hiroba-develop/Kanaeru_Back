@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface SmallGoalRepository extends JpaRepository<SmallGoalEntity, String> {
-    
+
     List<SmallGoalEntity> findByMiddleGoalIdAndDelFlgOrderByPositionAsc(String middleGoalId, String delFlg);
 }

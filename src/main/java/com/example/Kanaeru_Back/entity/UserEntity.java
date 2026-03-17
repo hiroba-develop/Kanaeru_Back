@@ -54,4 +54,11 @@ public class UserEntity {
     
     @Column(name = "STRIPE_CUSTOMER_ID", length = 255, nullable = false)
     private String stripeCustomerId;
+
+    @Column(name = "TERMS_AGREED_AT")
+    private LocalDateTime termsAgreedAt;
+
+    @Column(name = "LAST_LOGIN_AT")
+    private LocalDateTime lastLoginAt;
+
 }

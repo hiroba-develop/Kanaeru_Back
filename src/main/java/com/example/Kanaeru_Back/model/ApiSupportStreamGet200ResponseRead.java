@@ -5,8 +5,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.time.LocalDateTime;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -27,8 +25,7 @@ public class ApiSupportStreamGet200ResponseRead {
 
   private Integer messageSeq;
 
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private LocalDateTime readAt;
+  private String readAt;
 
   public ApiSupportStreamGet200ResponseRead messageSeq(Integer messageSeq) {
     this.messageSeq = messageSeq;
@@ -50,7 +47,7 @@ public class ApiSupportStreamGet200ResponseRead {
     this.messageSeq = messageSeq;
   }
 
-  public ApiSupportStreamGet200ResponseRead readAt(LocalDateTime readAt) {
+  public ApiSupportStreamGet200ResponseRead readAt(String readAt) {
     this.readAt = readAt;
     return this;
   }
@@ -59,14 +56,14 @@ public class ApiSupportStreamGet200ResponseRead {
    * Get readAt
    * @return readAt
   */
-  @Valid 
+  
   @Schema(name = "readAt", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("readAt")
-  public LocalDateTime getReadAt() {
+  public String getReadAt() {
     return readAt;
   }
 
-  public void setReadAt(LocalDateTime readAt) {
+  public void setReadAt(String readAt) {
     this.readAt = readAt;
   }
 

@@ -10,9 +10,10 @@ import com.example.Kanaeru_Back.model.ApiAuthLoginPost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationAdminPostRequest;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthResetPasswordPostRequest;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePostRequest;
 import com.example.Kanaeru_Back.model.ApiAuthUpdatePasswordPutRequest;
 import com.example.Kanaeru_Back.model.ApiAvailabilityGet200Response;
 import com.example.Kanaeru_Back.model.ApiContactsSendPostRequest;
@@ -38,19 +39,28 @@ import com.example.Kanaeru_Back.model.ApiNetAssetUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiOperatingProfitUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSaleUpdatePut200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUpdateUserPut200Response;
+import com.example.Kanaeru_Back.model.ApiSettingUserGet200Response;
 import com.example.Kanaeru_Back.model.ApiSettingUserImagePost200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePost200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsMiddleGoalIdGet200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdCompletePut200Response;
 import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdDetailGet200Response;
+import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdReorderPostRequest;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePost200Response;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePostRequest;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportAdviceUpdatePutRequest;
 import com.example.Kanaeru_Back.model.ApiSupportGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportReadGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationAllGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationApprovalPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportReservationGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationPostRequest;
+import com.example.Kanaeru_Back.model.ApiSupportSendPost200Response;
 import com.example.Kanaeru_Back.model.ApiSupportSendPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportStreamGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportUnreadStatusGet200Response;
 import com.example.Kanaeru_Back.model.ApiUpdateAdminUsersPut200Response;
 import com.example.Kanaeru_Back.model.ApiYearlyBudgetActualGet200Response;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -104,7 +114,7 @@ public interface DefaultApi {
         tags = { "認証" },
         responses = {
             @ApiResponse(responseCode = "200", description = "削除成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -114,7 +124,7 @@ public interface DefaultApi {
         produces = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthDeleteDelete(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthDeleteDelete(
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
     );
 
@@ -133,7 +143,7 @@ public interface DefaultApi {
         tags = { "認証" },
         responses = {
             @ApiResponse(responseCode = "200", description = "再発行成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -144,7 +154,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthForgotPasswordPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthForgotPasswordPost(
         @Parameter(name = "ApiAuthForgotPasswordPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthForgotPasswordPostRequest apiAuthForgotPasswordPostRequest
     );
 
@@ -224,7 +234,7 @@ public interface DefaultApi {
         tags = { "認証" },
         responses = {
             @ApiResponse(responseCode = "200", description = "登録成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -235,7 +245,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationAdminPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthRegistrationAdminPost(
         @Parameter(name = "ApiAuthRegistrationAdminPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthRegistrationAdminPostRequest apiAuthRegistrationAdminPostRequest
     );
 
@@ -254,7 +264,7 @@ public interface DefaultApi {
         tags = { "認証" },
         responses = {
             @ApiResponse(responseCode = "200", description = "登録成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -265,7 +275,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthRegistrationUserPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthRegistrationUserPost(
         @Parameter(name = "ApiAuthRegistrationUserPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthRegistrationUserPostRequest apiAuthRegistrationUserPostRequest
     );
 
@@ -284,7 +294,7 @@ public interface DefaultApi {
         tags = { "認証" },
         responses = {
             @ApiResponse(responseCode = "200", description = "再設定成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -295,8 +305,38 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiAuthResetPasswordPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthResetPasswordPost(
         @Parameter(name = "ApiAuthResetPasswordPostRequest", description = "", required = true) @Valid @RequestBody ApiAuthResetPasswordPostRequest apiAuthResetPasswordPostRequest
+    );
+
+
+    /**
+     * POST /api/auth/termsAgree : 利用規約同意
+     * ログイン直後の利用規約同意時使用、利用規約同意日時を更新 responseStatusは成功時に1を返却、失敗時は0を返却 
+     *
+     * @param apiAuthTermsAgreePostRequest  (required)
+     * @return 同意成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiAuthTermsAgreePost",
+        summary = "利用規約同意",
+        description = "ログイン直後の利用規約同意時使用、利用規約同意日時を更新 responseStatusは成功時に1を返却、失敗時は0を返却 ",
+        tags = { "認証" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "同意成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/api/auth/termsAgree",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthTermsAgreePost(
+        @Parameter(name = "ApiAuthTermsAgreePostRequest", description = "", required = true) @Valid @RequestBody ApiAuthTermsAgreePostRequest apiAuthTermsAgreePostRequest
     );
 
 
@@ -726,7 +766,7 @@ public interface DefaultApi {
         tags = { "マンダラチャート" },
         responses = {
             @ApiResponse(responseCode = "200", description = "削除成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -736,7 +776,7 @@ public interface DefaultApi {
         produces = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsChartIdDeleteDelete(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsChartIdDeleteDelete(
         @Parameter(name = "chart_id", description = "", required = true, in = ParameterIn.PATH) @PathVariable("chart_id") String chartId,
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
     );
@@ -847,7 +887,7 @@ public interface DefaultApi {
         tags = { "マンダラチャート" },
         responses = {
             @ApiResponse(responseCode = "200", description = "更新成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -858,7 +898,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsChartIdUpdatePut(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsChartIdUpdatePut(
         @Parameter(name = "chart_id", description = "", required = true, in = ParameterIn.PATH) @PathVariable("chart_id") String chartId,
         @Parameter(name = "ApiMandalaChartsChartIdUpdatePutRequest", description = "", required = true) @Valid @RequestBody ApiMandalaChartsChartIdUpdatePutRequest apiMandalaChartsChartIdUpdatePutRequest
     );
@@ -878,7 +918,7 @@ public interface DefaultApi {
         tags = { "マンダラチャート" },
         responses = {
             @ApiResponse(responseCode = "200", description = "作成成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -889,7 +929,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiMandalaChartsCreatePost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiMandalaChartsCreatePost(
         @Parameter(name = "ApiMandalaChartsCreatePostRequest", description = "", required = true) @Valid @RequestBody ApiMandalaChartsCreatePostRequest apiMandalaChartsCreatePostRequest
     );
 
@@ -1300,7 +1340,7 @@ public interface DefaultApi {
         tags = { "設定変更" },
         responses = {
             @ApiResponse(responseCode = "200", description = "取得成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSettingUpdateUserPut200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSettingUserGet200Response.class))
             })
         }
     )
@@ -1310,7 +1350,7 @@ public interface DefaultApi {
         produces = "application/json"
     )
     
-    ResponseEntity<ApiSettingUpdateUserPut200Response> apiSettingUserGet(
+    ResponseEntity<ApiSettingUserGet200Response> apiSettingUserGet(
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
     );
 
@@ -1486,6 +1526,36 @@ public interface DefaultApi {
 
 
     /**
+     * POST /api/small-goals/{small_goal_id}/reorder : 小目標順番変更
+     *
+     * @param smallGoalId  (required)
+     * @param apiSmallGoalsSmallGoalIdReorderPostRequest  (required)
+     * @return 変更成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSmallGoalsSmallGoalIdReorderPost",
+        summary = "小目標順番変更",
+        tags = { "小目標" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "変更成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthLogoutPost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/api/small-goals/{small_goal_id}/reorder",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthLogoutPost200Response> apiSmallGoalsSmallGoalIdReorderPost(
+        @Parameter(name = "small_goal_id", description = "", required = true, in = ParameterIn.PATH) @PathVariable("small_goal_id") String smallGoalId,
+        @Parameter(name = "ApiSmallGoalsSmallGoalIdReorderPostRequest", description = "", required = true) @Valid @RequestBody ApiSmallGoalsSmallGoalIdReorderPostRequest apiSmallGoalsSmallGoalIdReorderPostRequest
+    );
+
+
+    /**
      * PUT /api/small-goals/{small_goal_id}/update : 小目標更新
      *
      * @param smallGoalId  (required)
@@ -1516,9 +1586,122 @@ public interface DefaultApi {
 
 
     /**
-     * GET /api/support : サポート画面 初期表示
+     * POST /api/support/advice/create : サポート画面 アドバイス作成
+     *
+     * @param apiSupportAdviceCreatePostRequest  (required)
+     * @return 作成成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportAdviceCreatePost",
+        summary = "サポート画面 アドバイス作成",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "作成成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportAdviceCreatePost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/api/support/advice/create",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiSupportAdviceCreatePost200Response> apiSupportAdviceCreatePost(
+        @Parameter(name = "ApiSupportAdviceCreatePostRequest", description = "", required = true) @Valid @RequestBody ApiSupportAdviceCreatePostRequest apiSupportAdviceCreatePostRequest
+    );
+
+
+    /**
+     * DELETE /api/support/advice/delete : サポート画面 アドバイス削除
+     *
+     * @param adviceId  (required)
+     * @return 削除成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportAdviceDeleteDelete",
+        summary = "サポート画面 アドバイス削除",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "削除成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthLogoutPost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.DELETE,
+        value = "/api/support/advice/delete",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthLogoutPost200Response> apiSupportAdviceDeleteDelete(
+        @NotNull @Parameter(name = "adviceId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "adviceId", required = true) String adviceId
+    );
+
+
+    /**
+     * GET /api/support/advice : サポート画面 アドバイス取得
      *
      * @param userId  (required)
+     * @param year  (optional)
+     * @param month  (optional)
+     * @return 取得成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportAdviceGet",
+        summary = "サポート画面 アドバイス取得",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "取得成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportAdviceGet200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/support/advice",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiSupportAdviceGet200Response> apiSupportAdviceGet(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId,
+        @Parameter(name = "year", description = "", in = ParameterIn.QUERY) @Valid @RequestParam(value = "year", required = false) Integer year,
+        @Parameter(name = "month", description = "", in = ParameterIn.QUERY) @Valid @RequestParam(value = "month", required = false) Integer month
+    );
+
+
+    /**
+     * PUT /api/support/advice/update : サポート画面 アドバイス更新
+     *
+     * @param apiSupportAdviceUpdatePutRequest  (required)
+     * @return 更新成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportAdviceUpdatePut",
+        summary = "サポート画面 アドバイス更新",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "更新成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        value = "/api/support/advice/update",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportAdviceUpdatePut(
+        @Parameter(name = "ApiSupportAdviceUpdatePutRequest", description = "", required = true) @Valid @RequestBody ApiSupportAdviceUpdatePutRequest apiSupportAdviceUpdatePutRequest
+    );
+
+
+    /**
+     * GET /api/support : サポート画面 初期表示
+     *
      * @param selecteId  (required)
      * @return 取得成功 (status code 200)
      */
@@ -1539,7 +1722,6 @@ public interface DefaultApi {
     )
     
     ResponseEntity<ApiSupportGet200Response> apiSupportGet(
-        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId,
         @NotNull @Parameter(name = "selecteId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "selecteId", required = true) String selecteId
     );
 
@@ -1559,7 +1741,7 @@ public interface DefaultApi {
         tags = { "サポート画面" },
         responses = {
             @ApiResponse(responseCode = "200", description = "既読成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportGet200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportReadGet200Response.class))
             })
         }
     )
@@ -1569,7 +1751,7 @@ public interface DefaultApi {
         produces = "application/json"
     )
     
-    ResponseEntity<ApiSupportGet200Response> apiSupportReadGet(
+    ResponseEntity<ApiSupportReadGet200Response> apiSupportReadGet(
         @NotNull @Parameter(name = "senderId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "senderId", required = true) String senderId,
         @NotNull @Parameter(name = "recipientId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "recipientId", required = true) String recipientId,
         @NotNull @Parameter(name = "content", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "content", required = true) String content,
@@ -1618,7 +1800,7 @@ public interface DefaultApi {
         tags = { "サポート画面" },
         responses = {
             @ApiResponse(responseCode = "200", description = "承諾成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -1629,7 +1811,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationApprovalPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationApprovalPost(
         @Parameter(name = "ApiSupportReservationApprovalPostRequest", description = "", required = true) @Valid @RequestBody ApiSupportReservationApprovalPostRequest apiSupportReservationApprovalPostRequest
     );
 
@@ -1675,7 +1857,7 @@ public interface DefaultApi {
         tags = { "サポート画面" },
         responses = {
             @ApiResponse(responseCode = "200", description = "作成成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -1686,7 +1868,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationPost(
         @Parameter(name = "ApiSupportReservationPostRequest", description = "", required = true) @Valid @RequestBody ApiSupportReservationPostRequest apiSupportReservationPostRequest
     );
 
@@ -1703,7 +1885,7 @@ public interface DefaultApi {
         tags = { "サポート画面" },
         responses = {
             @ApiResponse(responseCode = "200", description = "拒否成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthRegistrationUserPost200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
             })
         }
     )
@@ -1714,7 +1896,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiAuthRegistrationUserPost200Response> apiSupportReservationRejectPost(
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReservationRejectPost(
         @Parameter(name = "ApiSupportReservationApprovalPostRequest", description = "", required = true) @Valid @RequestBody ApiSupportReservationApprovalPostRequest apiSupportReservationApprovalPostRequest
     );
 
@@ -1731,7 +1913,7 @@ public interface DefaultApi {
         tags = { "サポート画面" },
         responses = {
             @ApiResponse(responseCode = "200", description = "送信成功", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportGet200Response.class))
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportSendPost200Response.class))
             })
         }
     )
@@ -1742,7 +1924,7 @@ public interface DefaultApi {
         consumes = "application/json"
     )
     
-    ResponseEntity<ApiSupportGet200Response> apiSupportSendPost(
+    ResponseEntity<ApiSupportSendPost200Response> apiSupportSendPost(
         @Parameter(name = "ApiSupportSendPostRequest", description = "", required = true) @Valid @RequestBody ApiSupportSendPostRequest apiSupportSendPostRequest
     );
 
@@ -1770,6 +1952,33 @@ public interface DefaultApi {
     )
     
     ResponseEntity<ApiSupportStreamGet200Response> apiSupportStreamGet(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
+    );
+
+
+    /**
+     * GET /api/support/unread-status : 未読状態取得
+     *
+     * @param userId  (required)
+     * @return 成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportUnreadStatusGet",
+        summary = "未読状態取得",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiSupportUnreadStatusGet200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/support/unread-status",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiSupportUnreadStatusGet200Response> apiSupportUnreadStatusGet(
         @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
     );
 

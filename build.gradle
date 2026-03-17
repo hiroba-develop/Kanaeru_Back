@@ -44,6 +44,12 @@ dependencies {
 	
 	// AWS S3 SDK依存関係を追加
 	implementation 'software.amazon.awssdk:s3:2.20.26'
+
+	// Stripe Java SDK
+	implementation 'com.stripe:stripe-java:24.3.0'
+
+	// Spring Batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
@@ -97,4 +103,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+bootRun {
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8']
 }

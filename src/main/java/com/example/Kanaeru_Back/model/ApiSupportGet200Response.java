@@ -2,10 +2,14 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
+import com.example.Kanaeru_Back.model.AdviceSchema;
 import com.example.Kanaeru_Back.model.DmMessagesSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -29,6 +33,12 @@ public class ApiSupportGet200Response {
   private Integer lastMessageSeq;
 
   private DmMessagesSchema dmMessageSchema;
+
+  @Valid
+  private List<@Valid DmMessagesSchema> dmMessagesSchemaList;
+
+  @Valid
+  private List<@Valid AdviceSchema> adviceSchema;
 
   public ApiSupportGet200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
@@ -90,6 +100,62 @@ public class ApiSupportGet200Response {
     this.dmMessageSchema = dmMessageSchema;
   }
 
+  public ApiSupportGet200Response dmMessagesSchemaList(List<@Valid DmMessagesSchema> dmMessagesSchemaList) {
+    this.dmMessagesSchemaList = dmMessagesSchemaList;
+    return this;
+  }
+
+  public ApiSupportGet200Response addDmMessagesSchemaListItem(DmMessagesSchema dmMessagesSchemaListItem) {
+    if (this.dmMessagesSchemaList == null) {
+      this.dmMessagesSchemaList = new ArrayList<>();
+    }
+    this.dmMessagesSchemaList.add(dmMessagesSchemaListItem);
+    return this;
+  }
+
+  /**
+   * Get dmMessagesSchemaList
+   * @return dmMessagesSchemaList
+  */
+  @Valid 
+  @Schema(name = "dmMessagesSchemaList", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("dmMessagesSchemaList")
+  public List<@Valid DmMessagesSchema> getDmMessagesSchemaList() {
+    return dmMessagesSchemaList;
+  }
+
+  public void setDmMessagesSchemaList(List<@Valid DmMessagesSchema> dmMessagesSchemaList) {
+    this.dmMessagesSchemaList = dmMessagesSchemaList;
+  }
+
+  public ApiSupportGet200Response adviceSchema(List<@Valid AdviceSchema> adviceSchema) {
+    this.adviceSchema = adviceSchema;
+    return this;
+  }
+
+  public ApiSupportGet200Response addAdviceSchemaItem(AdviceSchema adviceSchemaItem) {
+    if (this.adviceSchema == null) {
+      this.adviceSchema = new ArrayList<>();
+    }
+    this.adviceSchema.add(adviceSchemaItem);
+    return this;
+  }
+
+  /**
+   * Get adviceSchema
+   * @return adviceSchema
+  */
+  @Valid 
+  @Schema(name = "adviceSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("adviceSchema")
+  public List<@Valid AdviceSchema> getAdviceSchema() {
+    return adviceSchema;
+  }
+
+  public void setAdviceSchema(List<@Valid AdviceSchema> adviceSchema) {
+    this.adviceSchema = adviceSchema;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -101,12 +167,14 @@ public class ApiSupportGet200Response {
     ApiSupportGet200Response apiSupportGet200Response = (ApiSupportGet200Response) o;
     return Objects.equals(this.responseStatus, apiSupportGet200Response.responseStatus) &&
         Objects.equals(this.lastMessageSeq, apiSupportGet200Response.lastMessageSeq) &&
-        Objects.equals(this.dmMessageSchema, apiSupportGet200Response.dmMessageSchema);
+        Objects.equals(this.dmMessageSchema, apiSupportGet200Response.dmMessageSchema) &&
+        Objects.equals(this.dmMessagesSchemaList, apiSupportGet200Response.dmMessagesSchemaList) &&
+        Objects.equals(this.adviceSchema, apiSupportGet200Response.adviceSchema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, lastMessageSeq, dmMessageSchema);
+    return Objects.hash(responseStatus, lastMessageSeq, dmMessageSchema, dmMessagesSchemaList, adviceSchema);
   }
 
   @Override
@@ -116,6 +184,8 @@ public class ApiSupportGet200Response {
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
     sb.append("    lastMessageSeq: ").append(toIndentedString(lastMessageSeq)).append("\n");
     sb.append("    dmMessageSchema: ").append(toIndentedString(dmMessageSchema)).append("\n");
+    sb.append("    dmMessagesSchemaList: ").append(toIndentedString(dmMessagesSchemaList)).append("\n");
+    sb.append("    adviceSchema: ").append(toIndentedString(adviceSchema)).append("\n");
     sb.append("}");
     return sb.toString();
   }

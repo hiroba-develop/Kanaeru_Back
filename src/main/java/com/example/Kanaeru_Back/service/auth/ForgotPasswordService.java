@@ -2,7 +2,7 @@ package com.example.Kanaeru_Back.service.auth;
 
 import com.example.Kanaeru_Back.entity.UserEntity;
 import com.example.Kanaeru_Back.model.ApiAuthForgotPasswordPostRequest;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.repository.UserRepository;
 import com.example.Kanaeru_Back.service.email.EmailTemplateService;
 import org.slf4j.Logger;
@@ -31,9 +31,9 @@ public class ForgotPasswordService {
     private int tokenExpirationMinutes;
 
     @Transactional
-    public ApiAuthRegistrationUserPost200Response sendPasswordResetEmail(
+    public ApiAuthTermsAgreePost200Response sendPasswordResetEmail(
             ApiAuthForgotPasswordPostRequest request) {
-        ApiAuthRegistrationUserPost200Response response = new ApiAuthRegistrationUserPost200Response();
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
 
         try {
             if (request == null || request.getEmail() == null || request.getEmail().trim().isEmpty()) {

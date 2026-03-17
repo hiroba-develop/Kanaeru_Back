@@ -2,9 +2,13 @@ package com.example.Kanaeru_Back.model;
 
 import java.net.URI;
 import java.util.Objects;
+import com.example.Kanaeru_Back.model.AdviceSchema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -16,16 +20,19 @@ import java.util.*;
 import jakarta.annotation.Generated;
 
 /**
- * ApiAuthRegistrationUserPost200Response
+ * ApiSupportAdviceGet200Response
  */
 
-@JsonTypeName("_api_auth_registration_user_post_200_response")
+@JsonTypeName("_api_support_advice_get_200_response")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class ApiAuthRegistrationUserPost200Response {
+public class ApiSupportAdviceGet200Response {
 
   private Integer responseStatus;
 
-  public ApiAuthRegistrationUserPost200Response responseStatus(Integer responseStatus) {
+  @Valid
+  private List<@Valid AdviceSchema> adviceSchema;
+
+  public ApiSupportAdviceGet200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
     return this;
   }
@@ -45,6 +52,34 @@ public class ApiAuthRegistrationUserPost200Response {
     this.responseStatus = responseStatus;
   }
 
+  public ApiSupportAdviceGet200Response adviceSchema(List<@Valid AdviceSchema> adviceSchema) {
+    this.adviceSchema = adviceSchema;
+    return this;
+  }
+
+  public ApiSupportAdviceGet200Response addAdviceSchemaItem(AdviceSchema adviceSchemaItem) {
+    if (this.adviceSchema == null) {
+      this.adviceSchema = new ArrayList<>();
+    }
+    this.adviceSchema.add(adviceSchemaItem);
+    return this;
+  }
+
+  /**
+   * Get adviceSchema
+   * @return adviceSchema
+  */
+  @Valid 
+  @Schema(name = "adviceSchema", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("adviceSchema")
+  public List<@Valid AdviceSchema> getAdviceSchema() {
+    return adviceSchema;
+  }
+
+  public void setAdviceSchema(List<@Valid AdviceSchema> adviceSchema) {
+    this.adviceSchema = adviceSchema;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -53,20 +88,22 @@ public class ApiAuthRegistrationUserPost200Response {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ApiAuthRegistrationUserPost200Response apiAuthRegistrationUserPost200Response = (ApiAuthRegistrationUserPost200Response) o;
-    return Objects.equals(this.responseStatus, apiAuthRegistrationUserPost200Response.responseStatus);
+    ApiSupportAdviceGet200Response apiSupportAdviceGet200Response = (ApiSupportAdviceGet200Response) o;
+    return Objects.equals(this.responseStatus, apiSupportAdviceGet200Response.responseStatus) &&
+        Objects.equals(this.adviceSchema, apiSupportAdviceGet200Response.adviceSchema);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus);
+    return Objects.hash(responseStatus, adviceSchema);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ApiAuthRegistrationUserPost200Response {\n");
+    sb.append("class ApiSupportAdviceGet200Response {\n");
     sb.append("    responseStatus: ").append(toIndentedString(responseStatus)).append("\n");
+    sb.append("    adviceSchema: ").append(toIndentedString(adviceSchema)).append("\n");
     sb.append("}");
     return sb.toString();
   }

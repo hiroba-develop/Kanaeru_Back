@@ -5,6 +5,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.time.LocalDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
@@ -33,9 +35,15 @@ public class ApiAuthLoginPost200Response {
 
   private String userImageUrl;
 
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private LocalDateTime termsAgreedAt;
+
   private String role;
 
   private String token;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private LocalDateTime lastLoginAt;
 
   public ApiAuthLoginPost200Response responseStatus(Integer responseStatus) {
     this.responseStatus = responseStatus;
@@ -137,6 +145,26 @@ public class ApiAuthLoginPost200Response {
     this.userImageUrl = userImageUrl;
   }
 
+  public ApiAuthLoginPost200Response termsAgreedAt(LocalDateTime termsAgreedAt) {
+    this.termsAgreedAt = termsAgreedAt;
+    return this;
+  }
+
+  /**
+   * Get termsAgreedAt
+   * @return termsAgreedAt
+  */
+  @Valid 
+  @Schema(name = "termsAgreedAt", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("termsAgreedAt")
+  public LocalDateTime getTermsAgreedAt() {
+    return termsAgreedAt;
+  }
+
+  public void setTermsAgreedAt(LocalDateTime termsAgreedAt) {
+    this.termsAgreedAt = termsAgreedAt;
+  }
+
   public ApiAuthLoginPost200Response role(String role) {
     this.role = role;
     return this;
@@ -177,6 +205,26 @@ public class ApiAuthLoginPost200Response {
     this.token = token;
   }
 
+  public ApiAuthLoginPost200Response lastLoginAt(LocalDateTime lastLoginAt) {
+    this.lastLoginAt = lastLoginAt;
+    return this;
+  }
+
+  /**
+   * Get lastLoginAt
+   * @return lastLoginAt
+  */
+  @Valid 
+  @Schema(name = "lastLoginAt", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("lastLoginAt")
+  public LocalDateTime getLastLoginAt() {
+    return lastLoginAt;
+  }
+
+  public void setLastLoginAt(LocalDateTime lastLoginAt) {
+    this.lastLoginAt = lastLoginAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -191,13 +239,15 @@ public class ApiAuthLoginPost200Response {
         Objects.equals(this.name, apiAuthLoginPost200Response.name) &&
         Objects.equals(this.email, apiAuthLoginPost200Response.email) &&
         Objects.equals(this.userImageUrl, apiAuthLoginPost200Response.userImageUrl) &&
+        Objects.equals(this.termsAgreedAt, apiAuthLoginPost200Response.termsAgreedAt) &&
         Objects.equals(this.role, apiAuthLoginPost200Response.role) &&
-        Objects.equals(this.token, apiAuthLoginPost200Response.token);
+        Objects.equals(this.token, apiAuthLoginPost200Response.token) &&
+        Objects.equals(this.lastLoginAt, apiAuthLoginPost200Response.lastLoginAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(responseStatus, userId, name, email, userImageUrl, role, token);
+    return Objects.hash(responseStatus, userId, name, email, userImageUrl, termsAgreedAt, role, token, lastLoginAt);
   }
 
   @Override
@@ -209,8 +259,10 @@ public class ApiAuthLoginPost200Response {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    userImageUrl: ").append(toIndentedString(userImageUrl)).append("\n");
+    sb.append("    termsAgreedAt: ").append(toIndentedString(termsAgreedAt)).append("\n");
     sb.append("    role: ").append(toIndentedString(role)).append("\n");
     sb.append("    token: ").append(toIndentedString(token)).append("\n");
+    sb.append("    lastLoginAt: ").append(toIndentedString(lastLoginAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

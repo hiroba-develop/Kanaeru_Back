@@ -35,8 +35,8 @@ public class UsersService {
         ApiGetUsersGet200Response response = new ApiGetUsersGet200Response();
 
         try {
-            // 有効な一般ユーザー（role:0, DEL_FLG:0）を全件取得
-            List<UserEntity> userEntities = userRepository.findByRoleAndDelFlg("0", "0");
+            // 有効な一般ユーザー（role:0, 3, 4, DEL_FLG:0）を全件取得
+            List<UserEntity> userEntities = userRepository.findByRoleInAndDelFlg(List.of("0", "3", "4"), "0");
 
             if (userEntities == null || userEntities.isEmpty()) {
                 logger.info("No active general users found");

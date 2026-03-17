@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -96,5 +97,10 @@ public class GlobalExceptionHandler {
         return "default".equals(activeProfile) || 
                "dev".equals(activeProfile) || 
                "local".equals(activeProfile);
+    }
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleClientAbort(AsyncRequestNotUsableException e) {
+        // クライアントが接続を切断した場合は無視する
+        logger.debug("クライアントが接続を切断しました（正常）: {}", e.getMessage());
     }
 }

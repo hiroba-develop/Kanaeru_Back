@@ -5,7 +5,7 @@ import com.example.Kanaeru_Back.entity.OperatingProfitEntity;
 import com.example.Kanaeru_Back.entity.SalesEntity;
 import com.example.Kanaeru_Back.entity.SettingEntity;
 import com.example.Kanaeru_Back.entity.UserEntity;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPostRequest;
 import com.example.Kanaeru_Back.model.SettingSchema;
 import com.example.Kanaeru_Back.model.UserSchema;
@@ -54,8 +54,8 @@ public class RegistrationUserService {
      * 会員登録処理（トランザクション外から呼び出し）
      * DB登録が成功した場合のみメール送信を行う
      */
-    public ApiAuthRegistrationUserPost200Response registerUser(ApiAuthRegistrationUserPostRequest request) {
-        ApiAuthRegistrationUserPost200Response response = new ApiAuthRegistrationUserPost200Response();
+    public ApiAuthTermsAgreePost200Response registerUser(ApiAuthRegistrationUserPostRequest request) {
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
 
         try {
             UserSchema userSchema = request.getUserSchema();
@@ -133,6 +133,7 @@ public class RegistrationUserService {
             userEntity.setBusinessStartHour(userSchema.getBusinessStartHour());
             userEntity.setBusinessEndHour(userSchema.getBusinessEndHour());
             userEntity.setStripeCustomerId("");
+            userEntity.setTermsAgreedAt(LocalDateTime.now());
 
             userRepository.save(userEntity);
 

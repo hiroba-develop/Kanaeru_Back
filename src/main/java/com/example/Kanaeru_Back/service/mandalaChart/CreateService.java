@@ -2,7 +2,7 @@ package com.example.Kanaeru_Back.service.mandalaChart;
 
 import com.example.Kanaeru_Back.entity.MainGoalEntity;
 import com.example.Kanaeru_Back.entity.MandalaChartEntity;
-import com.example.Kanaeru_Back.model.ApiAuthRegistrationUserPost200Response;
+import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.model.ApiMandalaChartsCreatePostRequest;
 import com.example.Kanaeru_Back.repository.MainGoalRepository;
 import com.example.Kanaeru_Back.repository.MandalaChartRepository;
@@ -23,9 +23,9 @@ public class CreateService {
     private MainGoalRepository mainGoalRepository;
 
     @Transactional
-    public ApiAuthRegistrationUserPost200Response createMandalaChart(
+    public ApiAuthTermsAgreePost200Response createMandalaChart(
             ApiMandalaChartsCreatePostRequest request) {
-        ApiAuthRegistrationUserPost200Response response = new ApiAuthRegistrationUserPost200Response();
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
 
         try {
             // CHART_IDをUUIDで生成
