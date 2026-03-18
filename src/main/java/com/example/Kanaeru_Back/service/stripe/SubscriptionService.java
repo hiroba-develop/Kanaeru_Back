@@ -228,6 +228,7 @@ public class SubscriptionService {
         switch (event.getType()) {
             case "invoice.paid":
             case "invoice_payment.paid":
+            case "invoice.payment_succeeded":
                 handleInvoicePaid(event);
                 break;
             case "invoice.payment_failed":
