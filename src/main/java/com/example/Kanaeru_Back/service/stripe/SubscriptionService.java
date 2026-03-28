@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import jakarta.annotation.PostConstruct;
 import java.time.Instant;
@@ -301,8 +302,10 @@ public class SubscriptionService {
         return customer.getId();
     }
 
-    private void handleInvoicePaid(Event event) throws StripeException {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    protected void handleInvoicePaid(Event event) throws StripeException {
         log.debug("invoice.paid 処理 eventId={}", event.getId());
+        log.debug("handleInvoicePaid 開始");
         try {
             String rawJson = event.getDataObjectDeserializer().getRawJson();
             JsonNode jsonNode = objectMapper.readTree(rawJson);
@@ -347,15 +350,21 @@ public class SubscriptionService {
             com.stripe.model.Subscription stripeSubscription =
                 com.stripe.model.Subscription.retrieve(finalSubscriptionId);
     
-            subscriptionRepository.findByStripeSubscriptionId(finalSubscriptionId).ifPresent(entity -> {
-                entity.setStatus("active");
-                entity.setCurrentPeriodStart(toLocalDateTime(stripeSubscription.getCurrentPeriodStart()));
-                entity.setCurrentPeriodEnd(toLocalDateTime(stripeSubscription.getCurrentPeriodEnd()));
-                entity.setUpdatedAt(LocalDateTime.now());
-                subscriptionRepository.save(entity);
-                log.info("サブスクリプション有効化 subscriptionId={}", finalSubscriptionId);
-                updateUserRoleToSubscribed(entity.getUserId());
-            });
+            subscriptionRepository.findByStripeSubscriptionIdForUpdate(finalSubscriptionId).ifPresent(entity -> {
+                    // ★ 追加：既にactiveなら2重処理をスキップ
+                    if ("active".equals(entity.getStatus())) {
+                        log.info("既にactive状態のためスキップ subscriptionId={}", finalSubscriptionId);
+                        return;
+                    }
+                
+                    entity.setStatus("active");
+                    entity.setCurrentPeriodStart(toLocalDateTime(stripeSubscription.getCurrentPeriodStart()));
+                    entity.setCurrentPeriodEnd(toLocalDateTime(stripeSubscription.getCurrentPeriodEnd()));
+                    entity.setUpdatedAt(LocalDateTime.now());
+                    subscriptionRepository.save(entity);
+                    log.info("サブスクリプション有効化 subscriptionId={}", finalSubscriptionId);
+                    updateUserRoleToSubscribed(entity.getUserId());
+                });
         } catch (Exception e) {
             log.error("invoice.paid 処理中にエラー", e);
             throw new RuntimeException("invoice.paid イベントの処理に失敗しました", e);
@@ -434,6 +443,13 @@ public class SubscriptionService {
     private void updateUserRoleToSubscribed(String userId) {
         userRepository.findById(userId).ifPresent(user -> {
             String previousRole = user.getRole();
+    
+            // ★ 追加：既にロール4（有料会員）の場合はメール送信をスキップ
+            if ("4".equals(previousRole)) {
+                log.info("既にロール4のためスキップ userId={}", userId);
+                return;
+            }
+    
             user.setRole("4");
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
@@ -444,6 +460,36 @@ public class SubscriptionService {
         });
     }
     
+    /**
+     * アカウント削除時にサブスクリプションを即時解約する。
+     * Stripe 上で即時キャンセルし、DB レコードを削除する。
+     * サブスクリプションが存在しない場合は何もしない。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void cancelSubscriptionOnAccountDeletion(String userId) throws StripeException {
+        log.info("退会に伴うサブスクリプション即時解約開始 userId={}", userId);
+
+        Optional<SubscriptionEntity> optional = subscriptionRepository.findByUserId(userId);
+        if (optional.isEmpty()) {
+            log.info("サブスクリプションなし。解約スキップ userId={}", userId);
+            return;
+        }
+
+        SubscriptionEntity entity = optional.get();
+
+        if (entity.getStripeSubscriptionId() != null) {
+            com.stripe.model.Subscription stripeSubscription =
+                com.stripe.model.Subscription.retrieve(entity.getStripeSubscriptionId());
+            if (!"canceled".equals(stripeSubscription.getStatus())) {
+                stripeSubscription.cancel();
+                log.info("Stripe サブスクリプションを即時解約 subscriptionId={}", entity.getStripeSubscriptionId());
+            }
+        }
+
+        subscriptionRepository.delete(entity);
+        log.info("退会に伴うサブスクリプション解約完了 userId={}", userId);
+    }
+
     // アップグレードを申請途中で辞めた場合にデータを削除
     @Transactional
     public boolean cancelIncompleteSubscription(String userId) throws StripeException {

@@ -4,6 +4,7 @@ import com.example.Kanaeru_Back.entity.*;
 import com.example.Kanaeru_Back.model.ApiAuthLogoutPost200Response;
 import com.example.Kanaeru_Back.repository.*;
 import com.example.Kanaeru_Back.service.email.EmailTemplateService;
+import com.example.Kanaeru_Back.service.stripe.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class AccountService {
     @Autowired
     private EmailTemplateService emailTemplateService;
 
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     @Transactional
     public ApiAuthLogoutPost200Response deleteAccount(String userId) {
         ApiAuthLogoutPost200Response response = new ApiAuthLogoutPost200Response();
@@ -71,6 +75,9 @@ public class AccountService {
                 response.setMessage("ユーザーは既に削除されています");
                 return response;
             }
+
+            // 有料プランが有効な場合は Stripe サブスクリプションを即時解約
+            subscriptionService.cancelSubscriptionOnAccountDeletion(trimmedUserId);
 
             // ユーザーに紐づくすべてのデータを論理削除
             deleteUserRelatedData(trimmedUserId);
@@ -108,6 +115,8 @@ public class AccountService {
             logger.error("Error deleting account", e);
             response.setResponseStatus(0);
             response.setMessage("アカウント削除中にエラーが発生しました: " + e.getMessage());
+            org.springframework.transaction.interceptor.TransactionAspectSupport
+                .currentTransactionStatus().setRollbackOnly();
         }
 
         return response;
