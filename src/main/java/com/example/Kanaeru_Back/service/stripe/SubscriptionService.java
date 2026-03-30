@@ -103,6 +103,11 @@ public class SubscriptionService {
                         )
                         .build()
                 )
+                .setAutomaticTax(
+                    SubscriptionCreateParams.AutomaticTax.builder()
+                        .setEnabled(true)
+                        .build()
+                )
                 .addAllExpand(java.util.Arrays.asList("latest_invoice.payment_intent"))
                 .build()
         );
@@ -262,6 +267,11 @@ public class SubscriptionService {
             CustomerCreateParams.builder()
                 .setEmail(email)
                 .setName(name)
+                .setAddress(
+                    CustomerCreateParams.Address.builder()
+                        .setCountry("JP")  // ← これを追加
+                        .build()
+                )
                 .build()
         );
         log.info("Stripe Customer 新規作成 customerId={}", customer.getId());
