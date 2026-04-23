@@ -31,6 +31,9 @@ public class EmailTemplateService {
     @Value("${app.support.email:kanaeru@etomoji.co.jp}")
     private String supportEmail;
 
+    @Value("${contact.support.email}")
+    private String adminEmail;
+
     @Value("${app.company.name:kanaeru}")
     private String companyName;
 
@@ -196,6 +199,63 @@ public class EmailTemplateService {
             return false;
         }
     }
+    /**
+     * 管理者宛：新規会員登録通知メールを送信
+     */
+    public boolean sendAdminUserRegisteredNotification(String userEmail, String userName) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
+            String registeredAt = LocalDateTime.now().format(formatter);
+
+            Map<String, String> variables = new HashMap<>();
+            variables.put("name", userName != null ? userName : "（未設定）");
+            variables.put("email", userEmail);
+            variables.put("registeredAt", registeredAt);
+            variables.put("loginUrl", frontendUrl + "/login");
+
+            boolean sent = emailService.sendTemplatedEmail(adminEmail, EmailTemplate.ADMIN_USER_REGISTERED, variables);
+
+            if (sent) {
+                logger.info("Admin notification (user registered) sent for: {}", userEmail);
+            } else {
+                logger.error("Failed to send admin notification (user registered) for: {}", userEmail);
+            }
+
+            return sent;
+        } catch (Exception e) {
+            logger.error("Error sending admin notification (user registered) for: {}", userEmail, e);
+            return false;
+        }
+    }
+
+    /**
+     * 管理者宛：有料プランアップグレード通知メールを送信
+     */
+    public boolean sendAdminSubscriptionUpgradedNotification(String userEmail, String userName) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
+            String upgradedAt = LocalDateTime.now().format(formatter);
+
+            Map<String, String> variables = new HashMap<>();
+            variables.put("name", userName != null ? userName : "（未設定）");
+            variables.put("email", userEmail);
+            variables.put("upgradedAt", upgradedAt);
+            variables.put("loginUrl", frontendUrl + "/login");
+            boolean sent = emailService.sendTemplatedEmail(adminEmail, EmailTemplate.ADMIN_SUBSCRIPTION_UPGRADED, variables);
+
+            if (sent) {
+                logger.info("Admin notification (subscription upgraded) sent for: {}", userEmail);
+            } else {
+                logger.error("Failed to send admin notification (subscription upgraded) for: {}", userEmail);
+            }
+
+            return sent;
+        } catch (Exception e) {
+            logger.error("Error sending admin notification (subscription upgraded) for: {}", userEmail, e);
+            return false;
+        }
+    }
+
     /**
      * テンプレートのプレビューを取得（開発・デバッグ用）
      */

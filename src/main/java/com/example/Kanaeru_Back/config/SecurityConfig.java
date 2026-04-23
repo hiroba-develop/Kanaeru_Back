@@ -77,7 +77,8 @@ public class SecurityConfig {
 				"http://staging.kanaeru.etomoji.co.jp",
 				"http://13.114.155.51:5180",
 				"http://35.74.40.37:5180",
-				"http://localhost:5180"
+				"http://localhost:5180",
+				"http://192.168.1.30:5180"
 		));
 		
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

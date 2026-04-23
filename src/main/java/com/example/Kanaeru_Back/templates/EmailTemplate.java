@@ -89,6 +89,30 @@ public enum EmailTemplate {
         "kanaeru運営チーム\n" +
         "サポート窓口: {supportEmail}"
     ),
+    ADMIN_USER_REGISTERED(
+        "【kanaeru管理】新規会員登録のお知らせ",
+        "新規ユーザーが登録されました。\n" +
+        "管理者ユーザーでログインをしてご確認ください。\n\n" +
+        "ログインURL：{loginUrl}\n\n" +
+        "■ 氏名：{name}\n" +
+        "■ メールアドレス：{email}\n" +
+        "■ 登録日時：{registeredAt}\n" +
+        "━━━━━━━━━━━━━━━━━━━━\n" +
+        "kanaeru運営チーム"
+    ),
+    
+    ADMIN_SUBSCRIPTION_UPGRADED(
+        "【kanaeru管理】有料プランアップグレードのお知らせ",
+        "ユーザーが有料プランにアップグレードしました。\n" +
+        "管理者ユーザーでログインをしてご確認ください。\n\n" +
+        "ログインURL：{loginUrl}\n\n" +
+        "■ 氏名：{name}\n" +
+        "■ メールアドレス：{email}\n" +
+        "■ アップグレード日時：{upgradedAt}\n" +
+        "━━━━━━━━━━━━━━━━━━━━\n" +
+        "kanaeru運営チーム"
+    ),
+
     CHAT_NOTIFICATION(
         "【kanaeru】メンターからメッセージが届いています",
         "{name} 様\n\n" +

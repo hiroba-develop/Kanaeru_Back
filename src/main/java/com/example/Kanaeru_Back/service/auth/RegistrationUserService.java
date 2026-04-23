@@ -93,6 +93,16 @@ public class RegistrationUserService {
                 // メール送信失敗してもユーザー登録は成功とする
             }
 
+            try {
+                emailTemplateService.sendAdminUserRegisteredNotification(
+                    userSchema.getEmail(),
+                    userSchema.getName()
+                );
+            } catch (Exception e) {
+                logger.error("Error sending admin notification for user registration: {}", userSchema.getEmail(), e);
+                // 管理者通知失敗してもユーザー登録は成功とする
+            }
+
             response.setResponseStatus(1);
             
         } catch (Exception e) {

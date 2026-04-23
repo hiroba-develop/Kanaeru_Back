@@ -466,7 +466,18 @@ public class SubscriptionService {
             log.info("ユーザーロールを 4 に更新 userId={}, previousRole={}", userId, previousRole);
     
             // アップグレード完了メール送信
-            emailTemplateService.sendSubscriptionUpgradedEmail(user.getEmail(), user.getName());
+            try {
+                emailTemplateService.sendSubscriptionUpgradedEmail(user.getEmail(), user.getName());
+            } catch (Exception e) {
+                log.error("ユーザーへのアップグレード完了メール送信に失敗 userId={}", userId, e);
+            }
+
+            // 管理者への通知メール送信
+            try {
+                emailTemplateService.sendAdminSubscriptionUpgradedNotification(user.getEmail(), user.getName());
+            } catch (Exception e) {
+                log.error("管理者へのアップグレード通知メール送信に失敗 userId={}", userId, e);
+            }
         });
     }
     
