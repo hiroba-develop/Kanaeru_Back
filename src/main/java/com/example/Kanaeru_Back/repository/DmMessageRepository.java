@@ -124,4 +124,23 @@ public interface DmMessageRepository extends JpaRepository<DmMessageEntity, Long
           AND m.READ_AT IS NULL
         """, nativeQuery = true)
     List<String> findUnreadSenderIdsByRecipientId(@Param("recipientId") String recipientId);
+
+    /**
+     * 指定メッセージのリアクションフラグを更新する
+     *
+     * @param messageSeq   対象メッセージシーケンス番号
+     * @param reactionFlag 設定するリアクションフラグ値（'1': あり / '0': なし）
+     * @param updatedAt    更新日時
+     * @return 更新件数
+     */
+    @Modifying
+    @Query(value = """
+            UPDATE DM_MESSAGES
+            SET REACTION_FLG = :reactionFlag, UPDATED_AT = :updatedAt
+            WHERE MESSAGE_SEQ = :messageSeq
+            """, nativeQuery = true)
+    int updateReactionFlag(
+            @Param("messageSeq") Long messageSeq,
+            @Param("reactionFlag") String reactionFlag,
+            @Param("updatedAt") LocalDateTime updatedAt);
 }

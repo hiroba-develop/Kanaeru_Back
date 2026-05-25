@@ -46,6 +46,7 @@ import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdDetailGet200Respon
 import com.example.Kanaeru_Back.model.ApiSmallGoalsSmallGoalIdReorderPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportReactionCreatePutRequest;
 import com.example.Kanaeru_Back.model.ApiSupportReservationAllGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationApprovalPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportReservationGet200Response;
@@ -53,6 +54,7 @@ import com.example.Kanaeru_Back.model.ApiSupportReservationPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportSendPostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportUnreadStatusGet200Response;
 import com.example.Kanaeru_Back.service.support.ReadService;
+import com.example.Kanaeru_Back.service.support.ReactionService;
 import com.example.Kanaeru_Back.service.support.SendService;
 import com.example.Kanaeru_Back.service.support.StreamService;
 import com.example.Kanaeru_Back.service.support.SupportService;
@@ -238,6 +240,9 @@ public class DefaultApiController implements DefaultApi {
 
     @Autowired
     private com.example.Kanaeru_Back.service.support.advice.DeleteService adviceDeleteService;
+
+    @Autowired
+    private ReactionService reactionService;
 
     @Override
     public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthRegistrationUserPost(
@@ -836,6 +841,31 @@ public class DefaultApiController implements DefaultApi {
     public ResponseEntity<ApiAuthTermsAgreePost200Response> apiAuthTermsAgreePost(
             ApiAuthTermsAgreePostRequest apiAuthTermsAgreePostRequest) {
         ApiAuthTermsAgreePost200Response response = termsAgreeService.agreeToTerms(apiAuthTermsAgreePostRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReactionCreatePut(
+            ApiSupportReactionCreatePutRequest apiSupportReactionCreatePutRequest) {
+        ApiAuthTermsAgreePost200Response response = new ApiAuthTermsAgreePost200Response();
+        try {
+            response = reactionService.createReaction(apiSupportReactionCreatePutRequest);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportReactionCreatePut", e);
+            response.setResponseStatus(0);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ApiAuthLogoutPost200Response> apiSupportReactionDeletePut(Integer messageSeq) {
+        ApiAuthLogoutPost200Response response = new ApiAuthLogoutPost200Response();
+        try {
+            response = reactionService.deleteReaction(messageSeq);
+        } catch (Exception e) {
+            logger.error("Error in apiSupportReactionDeletePut", e);
+            response.setResponseStatus(0);
+        }
         return ResponseEntity.ok(response);
     }
 }

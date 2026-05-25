@@ -194,6 +194,7 @@ public class SupportService {
             LocalDateTime now = LocalDateTime.now(JAPAN_ZONE);
             newMessage.setCreatedAt(now);
             newMessage.setUpdatedAt(now);
+            newMessage.setReactionFlag("0");
 
             dmMessageRepository.save(newMessage);
 
@@ -391,6 +392,16 @@ public class SupportService {
         schema.setReadAt(message.getReadAt());
         schema.setCreatedAt(message.getCreatedAt());
         schema.setUpdatedAt(message.getUpdatedAt());
+
+        if (message.getReactionFlag() != null) {
+            try {
+                schema.setReactionFlag(Integer.parseInt(message.getReactionFlag()));
+            } catch (NumberFormatException e) {
+                schema.setReactionFlag(0);
+            }
+        } else {
+            schema.setReactionFlag(0);
+        }
 
         return schema;
     }

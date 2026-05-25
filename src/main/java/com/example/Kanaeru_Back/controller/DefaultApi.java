@@ -52,6 +52,7 @@ import com.example.Kanaeru_Back.model.ApiSupportAdviceCreatePostRequest;
 import com.example.Kanaeru_Back.model.ApiSupportAdviceGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportAdviceUpdatePutRequest;
 import com.example.Kanaeru_Back.model.ApiSupportGet200Response;
+import com.example.Kanaeru_Back.model.ApiSupportReactionCreatePutRequest;
 import com.example.Kanaeru_Back.model.ApiSupportReadGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationAllGet200Response;
 import com.example.Kanaeru_Back.model.ApiSupportReservationApprovalPostRequest;
@@ -1723,6 +1724,61 @@ public interface DefaultApi {
     
     ResponseEntity<ApiSupportGet200Response> apiSupportGet(
         @NotNull @Parameter(name = "selecteId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "selecteId", required = true) String selecteId
+    );
+
+
+    /**
+     * PUT /api/support/reaction/create : サポート画面 リアクション登録
+     *
+     * @param apiSupportReactionCreatePutRequest  (required)
+     * @return 登録成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportReactionCreatePut",
+        summary = "サポート画面 リアクション登録",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "登録成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthTermsAgreePost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        value = "/api/support/reaction/create",
+        produces = "application/json",
+        consumes = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthTermsAgreePost200Response> apiSupportReactionCreatePut(
+        @Parameter(name = "ApiSupportReactionCreatePutRequest", description = "", required = true) @Valid @RequestBody ApiSupportReactionCreatePutRequest apiSupportReactionCreatePutRequest
+    );
+
+
+    /**
+     * PUT /api/support/reaction/delete : サポート画面 リアクション削除
+     *
+     * @param messageSeq  (required)
+     * @return 更新成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSupportReactionDeletePut",
+        summary = "サポート画面 リアクション削除",
+        tags = { "サポート画面" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "更新成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ApiAuthLogoutPost200Response.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        value = "/api/support/reaction/delete",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<ApiAuthLogoutPost200Response> apiSupportReactionDeletePut(
+        @NotNull @Parameter(name = "messageSeq", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "messageSeq", required = true) Integer messageSeq
     );
 
 

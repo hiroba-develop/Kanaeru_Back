@@ -36,4 +36,7 @@ public class DmMessageEntity {
     
     @Column(name = "UPDATED_AT", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "REACTION_FLG", nullable = false)
+    private String reactionFlag;
 }

@@ -44,6 +44,8 @@ public class DmMessagesSchema {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private LocalDateTime updatedAt;
 
+  private Integer reactionFlag;
+
   public DmMessagesSchema messageSeq(Integer messageSeq) {
     this.messageSeq = messageSeq;
     return this;
@@ -224,6 +226,26 @@ public class DmMessagesSchema {
     this.updatedAt = updatedAt;
   }
 
+  public DmMessagesSchema reactionFlag(Integer reactionFlag) {
+    this.reactionFlag = reactionFlag;
+    return this;
+  }
+
+  /**
+   * Get reactionFlag
+   * @return reactionFlag
+  */
+  
+  @Schema(name = "reactionFlag", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("reactionFlag")
+  public Integer getReactionFlag() {
+    return reactionFlag;
+  }
+
+  public void setReactionFlag(Integer reactionFlag) {
+    this.reactionFlag = reactionFlag;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -241,12 +263,13 @@ public class DmMessagesSchema {
         Objects.equals(this.content, dmMessagesSchema.content) &&
         Objects.equals(this.readAt, dmMessagesSchema.readAt) &&
         Objects.equals(this.createdAt, dmMessagesSchema.createdAt) &&
-        Objects.equals(this.updatedAt, dmMessagesSchema.updatedAt);
+        Objects.equals(this.updatedAt, dmMessagesSchema.updatedAt) &&
+        Objects.equals(this.reactionFlag, dmMessagesSchema.reactionFlag);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(messageSeq, senderId, senderName, recipientId, recipientName, content, readAt, createdAt, updatedAt);
+    return Objects.hash(messageSeq, senderId, senderName, recipientId, recipientName, content, readAt, createdAt, updatedAt, reactionFlag);
   }
 
   @Override
@@ -262,6 +285,7 @@ public class DmMessagesSchema {
     sb.append("    readAt: ").append(toIndentedString(readAt)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
+    sb.append("    reactionFlag: ").append(toIndentedString(reactionFlag)).append("\n");
     sb.append("}");
     return sb.toString();
   }
