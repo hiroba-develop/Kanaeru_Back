@@ -44,8 +44,9 @@ public class SecurityConfig {
 						.requestMatchers("/api/auth/registration/**").permitAll()
 						.requestMatchers("/api/auth/forgotPassword").permitAll()
 						.requestMatchers("/api/auth/resetPassword").permitAll()
-						.requestMatchers("/api/webhooks/stripe").permitAll() 
+						.requestMatchers("/api/webhooks/stripe").permitAll()
 						.requestMatchers("/api/stripe/subscription/create").permitAll()
+						.requestMatchers("/api/slack/events").permitAll()
 						.requestMatchers("/actuator/**").permitAll()
 						.requestMatchers("/test/batch/**").permitAll() 
 												

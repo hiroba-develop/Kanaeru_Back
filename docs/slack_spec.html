@@ -1,0 +1,368 @@
+<title>Slack連携 対応仕様リファレンス</title>
+<style>
+:root {
+  --bg: #F2F2F6;
+  --surface: #FFFFFF;
+  --surface-2: #F7F7FA;
+  --border: #E0E0EC;
+  --text: #0C0C16;
+  --text-2: #58587A;
+  --accent: #4F4FC8;
+  --accent-dim: #EDEDFF;
+  --ok: #166534;
+  --ok-bg: #F0FDF4;
+  --ok-border: #BBF7D0;
+  --no: #991B1B;
+  --no-bg: #FEF2F2;
+  --no-border: #FECACA;
+  --warn-bg: #FEFCE8;
+  --warn-border: #FDE68A;
+  --mono: ui-monospace,'Cascadia Code','Source Code Pro',Menlo,Monaco,monospace;
+  --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --r: 8px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0C0C14;--surface:#161622;--surface-2:#1C1C2C;--border:#26263A;
+  --text:#EEEEF8;--text-2:#7878A8;--accent:#8080EE;--accent-dim:#1A1A3A;
+  --ok:#4ADE80;--ok-bg:#052E16;--ok-border:#166534;
+  --no:#F87171;--no-bg:#2A0808;--no-border:#7F1D1D;
+  --warn-bg:#1A1500;--warn-border:#78620A;
+}}
+:root[data-theme="light"]{
+  --bg:#F2F2F6;--surface:#FFFFFF;--surface-2:#F7F7FA;--border:#E0E0EC;
+  --text:#0C0C16;--text-2:#58587A;--accent:#4F4FC8;--accent-dim:#EDEDFF;
+  --ok:#166534;--ok-bg:#F0FDF4;--ok-border:#BBF7D0;
+  --no:#991B1B;--no-bg:#FEF2F2;--no-border:#FECACA;
+  --warn-bg:#FEFCE8;--warn-border:#FDE68A;
+}
+:root[data-theme="dark"]{
+  --bg:#0C0C14;--surface:#161622;--surface-2:#1C1C2C;--border:#26263A;
+  --text:#EEEEF8;--text-2:#7878A8;--accent:#8080EE;--accent-dim:#1A1A3A;
+  --ok:#4ADE80;--ok-bg:#052E16;--ok-border:#166534;
+  --no:#F87171;--no-bg:#2A0808;--no-border:#7F1D1D;
+  --warn-bg:#1A1500;--warn-border:#78620A;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+.page{max-width:900px;margin:0 auto;padding:40px 20px 72px}
+
+header{margin-bottom:40px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+h1{font-size:24px;font-weight:700;line-height:1.2;text-wrap:balance;margin-bottom:6px}
+.subtitle{color:var(--text-2);font-size:13px}
+
+.section{margin-bottom:48px}
+.sec-label{
+  display:flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2);
+  margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)
+}
+.sec-label .badge{
+  font-family:var(--mono);font-size:11px;color:var(--accent);
+  background:var(--accent-dim);padding:1px 7px;border-radius:10px;margin-left:auto
+}
+
+/* --- bullet table --- */
+.ref-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.ref-table th{
+  background:var(--surface-2);font-size:11px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);
+  padding:8px 14px;text-align:left;border-bottom:1px solid var(--border)
+}
+.ref-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table tr:hover td{background:var(--surface-2)}
+.ref-table .desc{color:var(--text-2);font-size:12px}
+
+code{
+  font-family:var(--mono);font-size:12px;
+  background:var(--accent-dim);color:var(--accent);
+  padding:2px 5px;border-radius:4px
+}
+.sample{font-family:var(--mono);font-size:12px;color:var(--text-2)}
+.ok-tag{
+  display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+  background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border)
+}
+.no-tag{
+  display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+  background:var(--no-bg);color:var(--no);border:1px solid var(--no-border)
+}
+.note-box{
+  margin-top:12px;padding:10px 14px;
+  background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--r);
+  font-size:12px;color:var(--text-2);line-height:1.7
+}
+.note-box strong{color:var(--text)}
+
+/* --- emoji --- */
+.search-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.emoji-search{
+  flex:1;padding:8px 12px;font-size:13px;font-family:var(--mono);
+  border:1px solid var(--border);border-radius:var(--r);
+  background:var(--surface);color:var(--text);outline:none
+}
+.emoji-search::placeholder{color:var(--text-2)}
+.emoji-search:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.s-count{font-size:12px;color:var(--text-2);white-space:nowrap;font-family:var(--mono)}
+
+.cat-block{
+  margin-bottom:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden
+}
+.cat-head{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;background:var(--surface-2);border-bottom:1px solid var(--border)
+}
+.cat-icon{font-size:16px;line-height:1}
+.cat-title{font-size:12px;font-weight:600;color:var(--text)}
+.cat-n{margin-left:auto;font-size:11px;color:var(--text-2);font-family:var(--mono)}
+.emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:1px;background:var(--border)}
+.e-row{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;background:var(--surface);cursor:default;transition:background .1s
+}
+.e-row:hover{background:var(--surface-2)}
+.e-char{font-size:18px;width:26px;flex-shrink:0;line-height:1;text-align:center}
+.e-code{font-family:var(--mono);font-size:11px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+#no-results{display:none;text-align:center;padding:32px;color:var(--text-2);font-size:13px}
+
+.unsup-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--no);border-radius:var(--r);
+  padding:14px 16px;margin-top:20px
+}
+.unsup-box h3{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px}
+.unsup-list{display:flex;flex-direction:column;gap:6px}
+.unsup-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text)}
+.x-mark{color:var(--no);font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.unsup-item .sub{color:var(--text-2);font-size:12px}
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">kanaeru Slack Bot</p>
+    <h1>連携仕様リファレンス</h1>
+    <p class="subtitle">絵文字コードの変換対応と、箇条書きとして認識される入力形式の一覧です。</p>
+  </header>
+
+  <!-- ===== SECTION 1: 箇条書き ===== -->
+  <section class="section">
+    <div class="sec-label">箇条書きの対応形式</div>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th style="width:200px">入力形式</th>
+          <th>入力例</th>
+          <th>備考</th>
+          <th style="width:96px">状態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>・</code> 日本語中点</td><td><span class="sample">・朝のMTG準備</span></td><td class="desc">スペース不要</td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>•</code> 英語ビュレット</td><td><span class="sample">• 朝のMTG準備</span></td><td class="desc">スペース不要</td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>-</code> ハイフン</td><td><span class="sample">- 朝のMTG準備</span></td><td class="desc">後ろに半角スペース必要</td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>*</code> アスタリスク</td><td><span class="sample">* 朝のMTG準備</span></td><td class="desc">後ろに半角スペース必要</td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>1.</code> <code>2.</code> 数字＋ピリオド</td><td><span class="sample">1. 朝のMTG準備</span></td><td class="desc"></td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>1)</code> <code>2)</code> 数字＋括弧</td><td><span class="sample">1) 朝のMTG準備</span></td><td class="desc"></td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>1。</code> 数字＋和文ピリオド</td><td><span class="sample">1。朝のMTG準備</span></td><td class="desc"></td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>①②…⑳</code> 丸数字</td><td><span class="sample">① 朝のMTG準備</span></td><td class="desc">①〜⑳まで対応</td><td><span class="ok-tag">✓ 対応</span></td></tr>
+        <tr><td><code>❶❷</code> 黒丸数字</td><td><span class="sample">❶ 朝のMTG準備</span></td><td class="desc"></td><td><span class="no-tag">✗ 非対応</span></td></tr>
+        <tr><td><code>→ ▶ ►</code> 矢印系</td><td><span class="sample">→ 朝のMTG準備</span></td><td class="desc"></td><td><span class="no-tag">✗ 非対応</span></td></tr>
+        <tr><td><code>◆ ■ □ ◇</code> 図形系</td><td><span class="sample">◆ 朝のMTG準備</span></td><td class="desc"></td><td><span class="no-tag">✗ 非対応</span></td></tr>
+        <tr><td>記号なし行（テキストのみ）</td><td><span class="sample">今日のToDoです</span></td><td class="desc">導入文として自動スキップ</td><td><span class="no-tag">✗ スキップ</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">
+      <strong>注意：</strong>
+      <code>-</code> と <code>*</code> は後ろに<strong>半角スペースが必要</strong>です（<code>-目標</code> は非対応、<code>- 目標</code> は対応）。<br>
+      箇条書きマーカーのない行（「今日のToDoです」など）は導入文として自動的にスキップされ、目標として登録されません。<br>
+      同一行内に <code>・</code> が複数あっても自動で分割されます（例：<code>・目標1 ・目標2</code> → 2件）。
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2: 絵文字 ===== -->
+  <section class="section">
+    <div class="sec-label">
+      絵文字コード対応一覧
+      <span class="badge" id="total-badge">— 件</span>
+    </div>
+    <div class="search-row">
+      <input class="emoji-search" type="text" id="emoji-search"
+        placeholder=":microphone: のようにコード名で絞り込み…" autocomplete="off" spellcheck="false">
+      <span class="s-count" id="s-count"></span>
+    </div>
+    <div id="cat-container"></div>
+    <div id="no-results">一致する絵文字コードが見つかりませんでした</div>
+    <div class="unsup-box">
+      <h3>変換されないケース</h3>
+      <div class="unsup-list">
+        <div class="unsup-item"><span class="x-mark">✗</span><span>マップにない絵文字コードは<strong>コードのまま</strong>保存されます（例: <code>:custom_emoji:</code>）</span></div>
+        <div class="unsup-item"><span class="x-mark">✗</span><span><strong>スキントーンバリアント</strong>（<code>:+1::skin-tone-3:</code> など）は非対応</span></div>
+        <div class="unsup-item"><span class="x-mark">✗</span><span><strong>国旗絵文字</strong>（<code>:flag-jp:</code> など）は非対応</span></div>
+        <div class="unsup-item"><span class="x-mark">✗</span><span><strong>ワークスペース固有のカスタム絵文字</strong>はコードのまま保存されます</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const CATS = [
+  {name:"よく使う記号",icon:"✨",entries:[
+    {c:"sparkles",e:"✨"},{c:"star",e:"⭐"},{c:"star2",e:"🌟"},
+    {c:"white_check_mark",e:"✅"},{c:"heavy_check_mark",e:"✔️"},{c:"check",e:"✔️"},
+    {c:"x",e:"❌"},{c:"warning",e:"⚠️"},{c:"fire",e:"🔥"},{c:"rocket",e:"🚀"},
+    {c:"bulb",e:"💡"},{c:"tada",e:"🎉"},{c:"confetti_ball",e:"🎊"},{c:"trophy",e:"🏆"},
+    {c:"dart",e:"🎯"},{c:"100",e:"💯"},{c:"muscle",e:"💪"},{c:"crown",e:"👑"},
+    {c:"gem",e:"💎"},{c:"rainbow",e:"🌈"},{c:"sunny",e:"☀️"},{c:"sun_with_face",e:"🌞"},
+  ]},
+  {name:"メモ・仕事",icon:"📝",entries:[
+    {c:"memo",e:"📝"},{c:"pencil",e:"✏️"},{c:"pencil2",e:"✏️"},
+    {c:"calendar",e:"📅"},{c:"date",e:"📅"},
+    {c:"clock1",e:"🕐"},{c:"clock2",e:"🕑"},{c:"clock3",e:"🕒"},{c:"clock4",e:"🕓"},
+    {c:"clock5",e:"🕔"},{c:"clock6",e:"🕕"},{c:"clock7",e:"🕖"},{c:"clock8",e:"🕗"},
+    {c:"clock9",e:"🕘"},{c:"clock10",e:"🕙"},{c:"clock11",e:"🕚"},{c:"clock12",e:"🕛"},
+    {c:"chart_with_upwards_trend",e:"📈"},{c:"chart_with_downwards_trend",e:"📉"},{c:"bar_chart",e:"📊"},
+    {c:"computer",e:"💻"},{c:"iphone",e:"📱"},{c:"telephone_receiver",e:"📞"},
+    {c:"email",e:"📧"},{c:"envelope",e:"✉️"},{c:"mailbox",e:"📫"},
+    {c:"bookmark",e:"🔖"},{c:"books",e:"📚"},{c:"book",e:"📖"},
+    {c:"page_facing_up",e:"📄"},{c:"clipboard",e:"📋"},{c:"pushpin",e:"📌"},
+    {c:"paperclip",e:"📎"},{c:"link",e:"🔗"},
+    {c:"hammer",e:"🔨"},{c:"wrench",e:"🔧"},{c:"gear",e:"⚙️"},
+    {c:"key",e:"🔑"},{c:"lock",e:"🔒"},{c:"unlock",e:"🔓"},
+    {c:"mag",e:"🔍"},{c:"mag_right",e:"🔎"},
+  ]},
+  {name:"音声・メディア",icon:"🎤",entries:[
+    {c:"microphone",e:"🎤"},{c:"headphones",e:"🎧"},{c:"speaker",e:"🔈"},
+    {c:"loud_sound",e:"🔊"},{c:"loudspeaker",e:"📢"},{c:"mega",e:"📣"},
+    {c:"bell",e:"🔔"},{c:"no_bell",e:"🔕"},{c:"mute",e:"🔇"},
+    {c:"musical_note",e:"🎵"},{c:"notes",e:"🎶"},{c:"studio_microphone",e:"🎙️"},
+  ]},
+  {name:"テック・デバイス",icon:"🖥️",entries:[
+    {c:"desktop_computer",e:"🖥️"},{c:"keyboard",e:"⌨️"},{c:"printer",e:"🖨️"},
+    {c:"floppy_disk",e:"💾"},{c:"cd",e:"💿"},{c:"dvd",e:"📀"},
+    {c:"tv",e:"📺"},{c:"radio",e:"📻"},
+    {c:"camera",e:"📷"},{c:"camera_flash",e:"📸"},{c:"video_camera",e:"📹"},
+    {c:"movie_camera",e:"🎥"},{c:"clapper",e:"🎬"},
+    {c:"satellite",e:"📡"},{c:"battery",e:"🔋"},{c:"electric_plug",e:"🔌"},
+  ]},
+  {name:"ファイル・ビジネス",icon:"📁",entries:[
+    {c:"file_folder",e:"📁"},{c:"open_file_folder",e:"📂"},{c:"card_index",e:"📇"},
+    {c:"spiral_notepad",e:"🗒️"},{c:"package",e:"📦"},
+    {c:"inbox_tray",e:"📥"},{c:"outbox_tray",e:"📤"},{c:"wastebasket",e:"🗑️"},
+    {c:"label",e:"🏷️"},{c:"money_with_wings",e:"💸"},{c:"dollar",e:"💵"},
+    {c:"yen",e:"💴"},{c:"moneybag",e:"💰"},{c:"credit_card",e:"💳"},
+  ]},
+  {name:"時計・時間",icon:"⏰",entries:[
+    {c:"alarm_clock",e:"⏰"},{c:"stopwatch",e:"⏱️"},{c:"timer_clock",e:"⏲️"},
+    {c:"hourglass",e:"⌛"},{c:"hourglass_flowing_sand",e:"⏳"},
+  ]},
+  {name:"ハンドジェスチャー",icon:"👍",entries:[
+    {c:"+1",e:"👍"},{c:"thumbsup",e:"👍"},{c:"-1",e:"👎"},{c:"thumbsdown",e:"👎"},
+    {c:"clap",e:"👏"},{c:"raised_hands",e:"🙌"},{c:"pray",e:"🙏"},{c:"wave",e:"👋"},
+    {c:"ok_hand",e:"👌"},{c:"point_up",e:"☝️"},{c:"point_up_2",e:"👆"},
+    {c:"point_down",e:"👇"},{c:"point_left",e:"👈"},{c:"point_right",e:"👉"},
+    {c:"v",e:"✌️"},{c:"hand",e:"✋"},{c:"raised_hand",e:"✋"},
+    {c:"fist",e:"✊"},{c:"punch",e:"👊"},{c:"open_hands",e:"👐"},{c:"crossed_fingers",e:"🤞"},
+  ]},
+  {name:"人物・ジェスチャー",icon:"🙇",entries:[
+    {c:"bow",e:"🙇"},{c:"woman-bowing",e:"🙇‍♀️"},{c:"man-bowing",e:"🙇‍♂️"},
+    {c:"woman-raising-hand",e:"🙋‍♀️"},{c:"man-raising-hand",e:"🙋‍♂️"},{c:"raising_hand",e:"🙋"},
+    {c:"person_frowning",e:"🙍"},{c:"woman-frowning",e:"🙍‍♀️"},{c:"man-frowning",e:"🙍‍♂️"},
+    {c:"woman-gesturing-ok",e:"🙆‍♀️"},{c:"man-gesturing-ok",e:"🙆‍♂️"},{c:"ok_woman",e:"🙆"},
+    {c:"woman-gesturing-no",e:"🙅‍♀️"},{c:"man-gesturing-no",e:"🙅‍♂️"},{c:"no_good",e:"🙅"},
+    {c:"woman-running",e:"🏃‍♀️"},{c:"man-running",e:"🏃‍♂️"},{c:"runner",e:"🏃"},
+    {c:"woman-walking",e:"🚶‍♀️"},{c:"man-walking",e:"🚶‍♂️"},{c:"walking",e:"🚶"},
+  ]},
+  {name:"スポーツ・ゲーム",icon:"🏆",entries:[
+    {c:"soccer",e:"⚽"},{c:"baseball",e:"⚾"},{c:"basketball",e:"🏀"},
+    {c:"tennis",e:"🎾"},{c:"golf",e:"⛳"},{c:"game_die",e:"🎲"},{c:"art",e:"🎨"},
+  ]},
+  {name:"顔文字",icon:"😊",entries:[
+    {c:"grinning",e:"😀"},{c:"smile",e:"😄"},{c:"laughing",e:"😆"},{c:"satisfied",e:"😆"},
+    {c:"joy",e:"😂"},{c:"rofl",e:"🤣"},{c:"slightly_smiling_face",e:"🙂"},
+    {c:"wink",e:"😉"},{c:"blush",e:"😊"},{c:"innocent",e:"😇"},
+    {c:"heart_eyes",e:"😍"},{c:"kissing_heart",e:"😘"},{c:"yum",e:"😋"},{c:"sunglasses",e:"😎"},
+    {c:"thinking_face",e:"🤔"},{c:"hushed",e:"😯"},{c:"open_mouth",e:"😮"},
+    {c:"astonished",e:"😲"},{c:"flushed",e:"😳"},{c:"sweat_smile",e:"😅"},{c:"sweat",e:"😓"},
+    {c:"disappointed",e:"😞"},{c:"worried",e:"😟"},{c:"cry",e:"😢"},{c:"sob",e:"😭"},
+    {c:"confounded",e:"😖"},{c:"persevere",e:"😣"},{c:"tired_face",e:"😫"},{c:"weary",e:"😩"},
+    {c:"grimacing",e:"😬"},{c:"fearful",e:"😨"},{c:"cold_sweat",e:"😰"},
+    {c:"pensive",e:"😔"},{c:"sleepy",e:"😪"},{c:"relieved",e:"😌"},
+    {c:"expressionless",e:"😑"},{c:"no_mouth",e:"😶"},{c:"zipper_mouth_face",e:"🤐"},
+    {c:"rage",e:"😡"},{c:"angry",e:"😠"},{c:"skull",e:"💀"},
+  ]},
+  {name:"ハート",icon:"❤️",entries:[
+    {c:"heart",e:"❤️"},{c:"orange_heart",e:"🧡"},{c:"yellow_heart",e:"💛"},
+    {c:"green_heart",e:"💚"},{c:"blue_heart",e:"💙"},{c:"purple_heart",e:"💜"},
+    {c:"black_heart",e:"🖤"},{c:"broken_heart",e:"💔"},{c:"two_hearts",e:"💕"},
+    {c:"sparkling_heart",e:"💖"},{c:"heartpulse",e:"💗"},{c:"heartbeat",e:"💓"},
+    {c:"revolving_hearts",e:"💞"},{c:"heart_decoration",e:"💟"},{c:"heavy_heart_exclamation",e:"❣️"},
+  ]},
+  {name:"自然・食べ物",icon:"🌸",entries:[
+    {c:"cherry_blossom",e:"🌸"},{c:"rose",e:"🌹"},{c:"sunflower",e:"🌻"},
+    {c:"four_leaf_clover",e:"🍀"},{c:"coffee",e:"☕"},{c:"tea",e:"🍵"},
+    {c:"beer",e:"🍺"},{c:"pizza",e:"🍕"},{c:"rice_ball",e:"🍙"},{c:"sushi",e:"🍣"},
+  ]},
+  {name:"乗り物・場所",icon:"🚗",entries:[
+    {c:"house",e:"🏠"},{c:"office",e:"🏢"},{c:"school",e:"🏫"},{c:"hospital",e:"🏥"},
+    {c:"car",e:"🚗"},{c:"train",e:"🚂"},{c:"airplane",e:"✈️"},
+    {c:"earth_asia",e:"🌏"},{c:"earth_americas",e:"🌎"},{c:"earth_africa",e:"🌍"},
+  ]},
+  {name:"記号・矢印",icon:"➡️",entries:[
+    {c:"exclamation",e:"❗"},{c:"question",e:"❓"},{c:"grey_exclamation",e:"❕"},{c:"grey_question",e:"❔"},
+    {c:"heavy_plus_sign",e:"➕"},{c:"heavy_minus_sign",e:"➖"},{c:"heavy_multiplication_x",e:"✖️"},
+    {c:"arrow_right",e:"➡️"},{c:"arrow_left",e:"⬅️"},{c:"arrow_up",e:"⬆️"},{c:"arrow_down",e:"⬇️"},
+    {c:"arrow_forward",e:"▶️"},{c:"small_red_triangle",e:"🔺"},{c:"small_red_triangle_down",e:"🔻"},
+    {c:"red_circle",e:"🔴"},{c:"orange_circle",e:"🟠"},{c:"yellow_circle",e:"🟡"},
+    {c:"green_circle",e:"🟢"},{c:"blue_circle",e:"🔵"},{c:"purple_circle",e:"🟣"},
+    {c:"white_circle",e:"⚪"},{c:"black_circle",e:"⚫"},{c:"large_blue_circle",e:"🔵"},
+    {c:"radio_button",e:"🔘"},{c:"ballot_box_with_check",e:"☑️"},
+    {c:"new",e:"🆕"},{c:"ok",e:"🆗"},{c:"up",e:"🆙"},{c:"cool",e:"🆒"},{c:"free",e:"🆓"},
+    {c:"sos",e:"🆘"},{c:"no_entry",e:"⛔"},{c:"no_entry_sign",e:"🚫"},
+  ]},
+];
+
+const total = CATS.reduce((s,c)=>s+c.entries.length,0);
+document.getElementById('total-badge').textContent = total + '件';
+
+function render(q=''){
+  const container = document.getElementById('cat-container');
+  const noRes = document.getElementById('no-results');
+  const sCount = document.getElementById('s-count');
+  const term = q.replace(/^:/,'').replace(/:$/,'').toLowerCase().trim();
+  container.innerHTML='';
+  let vis=0,anyCat=false;
+  CATS.forEach(cat=>{
+    const filt = term ? cat.entries.filter(e=>e.c.includes(term)) : cat.entries;
+    if(!filt.length) return;
+    anyCat=true; vis+=filt.length;
+    const block=document.createElement('div');
+    block.className='cat-block';
+    const head=document.createElement('div');
+    head.className='cat-head';
+    head.innerHTML=`<span class="cat-icon">${cat.icon}</span><span class="cat-title">${cat.name}</span><span class="cat-n">${filt.length}件</span>`;
+    block.appendChild(head);
+    const grid=document.createElement('div');
+    grid.className='emoji-grid';
+    filt.forEach(e=>{
+      const row=document.createElement('div');
+      row.className='e-row';
+      row.title=`:${e.c}:`;
+      row.innerHTML=`<span class="e-char">${e.e}</span><span class="e-code">:${e.c}:</span>`;
+      grid.appendChild(row);
+    });
+    block.appendChild(grid);
+    container.appendChild(block);
+  });
+  noRes.style.display=(!anyCat&&term)?'block':'none';
+  sCount.textContent=term?`${vis}件`:'';
+}
+
+render();
+document.getElementById('emoji-search').addEventListener('input',function(){render(this.value)});
+</script>
