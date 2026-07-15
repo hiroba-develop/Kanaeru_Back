@@ -3,9 +3,12 @@ package com.example.Kanaeru_Back.service.slack;
 import com.example.Kanaeru_Back.entity.DailyGoalEntity;
 import com.example.Kanaeru_Back.entity.SlackMessageEntity;
 import com.example.Kanaeru_Back.entity.SlackUserMappingEntity;
+import com.example.Kanaeru_Back.entity.SlackWorkspaceEntity;
 import com.example.Kanaeru_Back.repository.DailyGoalRepository;
 import com.example.Kanaeru_Back.repository.SlackMessageRepository;
 import com.example.Kanaeru_Back.repository.SlackUserMappingRepository;
+import com.example.Kanaeru_Back.repository.SlackWorkspaceRepository;
+import com.example.Kanaeru_Back.util.SlackTokenCipher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -45,9 +48,6 @@ public class SlackEventService {
     @Value("${slack.signing-secret:}")
     private String signingSecret;
 
-    @Value("${slack.bot-token:}")
-    private String botToken;
-
     // ★ 追加：ローカル開発用 署名検証スキップフラグ
     @Value("${slack.skip-verification:false}")
     private boolean skipVerification;
@@ -63,6 +63,12 @@ public class SlackEventService {
 
     @Autowired
     private SlackUserMappingRepository slackUserMappingRepository;
+
+    @Autowired
+    private SlackWorkspaceRepository slackWorkspaceRepository;
+
+    @Autowired
+    private SlackTokenCipher slackTokenCipher;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -136,11 +142,29 @@ public class SlackEventService {
             return;
         }
 
+        String teamId = root.path("team_id").asText();
         JsonNode event = root.path("event");
         String eventType = event.path("type").asText();
+
+        // ワークスペースのアンインストール／トークン失効通知（app_mention以外の特殊イベント）
+        if ("app_uninstalled".equals(eventType) || "tokens_revoked".equals(eventType)) {
+            handleWorkspaceUninstall(teamId);
+            return;
+        }
+
         if (!"app_mention".equals(eventType)) {
             return;
         }
+
+        // team_id からワークスペースを特定（未連携・アンインストール済みなら無視）
+        Optional<SlackWorkspaceEntity> workspaceOpt = slackWorkspaceRepository.findByTeamIdAndDelFlg(teamId, "0");
+        if (workspaceOpt.isEmpty()) {
+            logger.warn("有効なSlackワークスペースが見つかりません team_id={}", teamId);
+            return;
+        }
+        SlackWorkspaceEntity workspace = workspaceOpt.get();
+        String workspaceId = workspace.getWorkspaceId();
+        String botToken = slackTokenCipher.decrypt(workspace.getBotToken());
 
         String slackUserId = event.path("user").asText();
         String slackTs     = event.path("ts").asText();
@@ -154,18 +178,19 @@ public class SlackEventService {
                 : slackTs;
 
         // 重複チェック（Slackのリトライによる二重登録を防止）
-        if (slackMessageRepository.existsBySlackTs(slackTs)) {
+        if (slackMessageRepository.existsByWorkspaceIdAndSlackTs(workspaceId, slackTs)) {
             logger.info("Slack ts が重複しているためスキップ: {}", slackTs);
             return;
         }
 
-        // SLACK_USER_MAPPINGS でkanaeruユーザーを特定
+        // SLACK_USER_MAPPINGS でkanaeruユーザーを特定（ワークスペース内で一意）
         Optional<SlackUserMappingEntity> mappingOpt =
-                slackUserMappingRepository.findBySlackUserIdAndDelFlg(slackUserId, "0");
+                slackUserMappingRepository.findByWorkspaceIdAndSlackUserIdAndDelFlg(workspaceId, slackUserId, "0");
         if (mappingOpt.isEmpty()) {
             logger.warn("Slackユーザーに対応するkanaeruユーザーが見つかりません: {}", slackUserId);
             sendSlackMessage(channelId, replyTs,
-                    "kanaeruに目標を登録するためには、SlackメンバーIDの紐づけが必要です。\nkanaeruの設定画面でSlackメンバーIDを登録してください。");
+                    "kanaeruに目標を登録するためには、SlackメンバーIDの紐づけが必要です。\nkanaeruの設定画面でSlackメンバーIDを登録してください。",
+                    botToken);
             return;
         }
 
@@ -177,7 +202,8 @@ public class SlackEventService {
 
         if (goals.isEmpty()) {
             sendSlackMessage(channelId, replyTs,
-                    "目標が見つかりませんでした。箇条書きで入力してください（・、-、* など）");
+                    "目標が見つかりませんでした。箇条書きで入力してください（・、-、* など）",
+                    botToken);
             return;
         }
 
@@ -188,6 +214,7 @@ public class SlackEventService {
         SlackMessageEntity slackMsg = new SlackMessageEntity();
         slackMsg.setSlackMessageId(UUID.randomUUID().toString());
         slackMsg.setUserId(userId);
+        slackMsg.setWorkspaceId(workspaceId);
         slackMsg.setSlackTs(slackTs);
         slackMsg.setChannelId(channelId);
         slackMsg.setRawText(rawText.length() > 4000 ? rawText.substring(0, 4000) : rawText);
@@ -260,7 +287,7 @@ public class SlackEventService {
                 reply.append("• ").append(t).append("\n");
             }
         }
-        sendSlackMessage(channelId, replyTs, reply.toString().trim());
+        sendSlackMessage(channelId, replyTs, reply.toString().trim(), botToken);
         logger.info("Slack経由で{}件登録（省略{}件）、{}件エラー userId={}", successCount, truncatedNotices.size(), failedTitles.size(), userId);
     }
 
@@ -346,16 +373,33 @@ public class SlackEventService {
     }
 
     /**
+     * ワークスペースがアンインストールされた／トークンが失効した通知を受けて
+     * SLACK_WORKSPACES.DEL_FLGを更新する。
+     */
+    private void handleWorkspaceUninstall(String teamId) {
+        Optional<SlackWorkspaceEntity> workspaceOpt = slackWorkspaceRepository.findByTeamId(teamId);
+        if (workspaceOpt.isEmpty()) {
+            logger.warn("アンインストール通知を受信しましたが該当ワークスペースが見つかりません team_id={}", teamId);
+            return;
+        }
+        SlackWorkspaceEntity workspace = workspaceOpt.get();
+        workspace.setDelFlg("1");
+        slackWorkspaceRepository.save(workspace);
+        logger.info("Slackワークスペースの連携解除を検知しDEL_FLGを更新しました team_id={}", teamId);
+    }
+
+    /**
      * Slackチャンネルにメッセージを送信する。
      * スレッド返信に対応するため threadTs を指定する。
      *
      * @param channelId 送信先チャンネルID
      * @param threadTs  スレッド返信先のタイムスタンプ（通常メッセージの ts）
      * @param message   送信するテキスト
+     * @param botToken  ワークスペース単位のBot Token（復号済み）
      */
-    private void sendSlackMessage(String channelId, String threadTs, String message) {
+    private void sendSlackMessage(String channelId, String threadTs, String message, String botToken) {
         if (botToken == null || botToken.isEmpty()) {
-            logger.warn("slack.bot-token が未設定のためSlack返信をスキップします");
+            logger.warn("Bot Tokenが未設定のためSlack返信をスキップします");
             return;
         }
 

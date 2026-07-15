@@ -2,7 +2,10 @@ package com.example.Kanaeru_Back.controller;
 
 import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.model.GetSlackUserMapping200Response;
+import com.example.Kanaeru_Back.model.SlackOauthAuthorizeResponse;
+import com.example.Kanaeru_Back.model.SlackOauthStatusResponse;
 import com.example.Kanaeru_Back.model.SlackUserMappingRequest;
+import com.example.Kanaeru_Back.service.slack.SlackOAuthService;
 import com.example.Kanaeru_Back.service.slack.SlackUserMappingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 public class SlackApiController implements SlackApi {
@@ -18,6 +24,9 @@ public class SlackApiController implements SlackApi {
 
     @Autowired
     private SlackUserMappingService slackUserMappingService;
+
+    @Autowired
+    private SlackOAuthService slackOAuthService;
 
     @Override
     public ResponseEntity<GetSlackUserMapping200Response> getSlackUserMapping(String userId) {
@@ -47,5 +56,45 @@ public class SlackApiController implements SlackApi {
             response.setResponseStatus(0);
         }
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<SlackOauthAuthorizeResponse> apiSlackOauthAuthorizeGet(String userId, String returnUrl) {
+        try {
+            String authorizeUrl = slackOAuthService.buildAuthorizeUrl(userId, returnUrl);
+            SlackOauthAuthorizeResponse response = new SlackOauthAuthorizeResponse();
+            response.setAuthorizeUrl(authorizeUrl);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Slack認可URL発行エラー userId={}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> apiSlackOauthCallbackGet(String state, String code, String error) {
+        SlackOAuthService.OAuthCallbackResult result = slackOAuthService.handleCallback(state, code, error);
+
+        UriComponentsBuilder redirectBuilder = UriComponentsBuilder.fromUriString(result.returnUrl());
+        if (result.success()) {
+            redirectBuilder.queryParam("slackLinked", "success");
+        } else {
+            redirectBuilder.queryParam("slackLinked", "error");
+            redirectBuilder.queryParam("reason", result.reason());
+        }
+
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectBuilder.build().toUriString())).build();
+    }
+
+    @Override
+    public ResponseEntity<SlackOauthStatusResponse> getSlackOauthStatus(String userId) {
+        try {
+            return ResponseEntity.ok(slackOAuthService.getStatus(userId));
+        } catch (Exception e) {
+            logger.error("Slack連携状態取得エラー userId={}", userId, e);
+            SlackOauthStatusResponse response = new SlackOauthStatusResponse();
+            response.setConnected(false);
+            return ResponseEntity.ok(response);
+        }
     }
 }

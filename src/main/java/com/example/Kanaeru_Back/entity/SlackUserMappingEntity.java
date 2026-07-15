@@ -19,11 +19,11 @@ public class SlackUserMappingEntity {
     @Column(name = "USER_ID", length = 36, nullable = false)
     private String userId;
 
-    @Column(name = "SLACK_USER_ID", length = 100, nullable = false, unique = true)
+    @Column(name = "SLACK_USER_ID", length = 100, nullable = false)
     private String slackUserId;
 
-    @Column(name = "SLACK_WORKSPACE", length = 100)
-    private String slackWorkspace;
+    @Column(name = "WORKSPACE_ID", length = 36, nullable = false)
+    private String workspaceId;
 
     @Column(name = "DEL_FLG", length = 1, nullable = false)
     private String delFlg;

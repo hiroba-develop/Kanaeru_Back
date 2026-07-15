@@ -19,7 +19,10 @@ public class SlackMessageEntity {
     @Column(name = "USER_ID", length = 36, nullable = false)
     private String userId;
 
-    @Column(name = "SLACK_TS", length = 50, nullable = false, unique = true)
+    @Column(name = "WORKSPACE_ID", length = 36, nullable = false)
+    private String workspaceId;
+
+    @Column(name = "SLACK_TS", length = 50, nullable = false)
     private String slackTs;
 
     @Column(name = "CHANNEL_ID", length = 100, nullable = false)

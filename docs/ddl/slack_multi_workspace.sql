@@ -5,21 +5,16 @@
 -- インデックス表領域 : KANAERU_INDEX
 --
 -- 実行前に必ず確認すること:
---   1. SLACK_USER_MAPPINGS / SLACK_MESSAGES の既存UNIQUE制約名は
---      環境によって異なる可能性があるため、下記クエリで実際の制約名を
---      確認してから <既存の...制約名> のプレースホルダを置き換えること。
---        SELECT constraint_name, table_name
---        FROM all_constraints
---        WHERE owner = 'KANAERU_APP_UT'
---          AND table_name IN ('SLACK_USER_MAPPINGS', 'SLACK_MESSAGES')
---          AND constraint_type = 'U';
---   2. FK制約名（FK_〜）は本設計時点で命名規則の指定が無かったため、
+--   1. FK制約名（FK_〜）は本設計時点で命名規則の指定が無かったため、
 --      「FK_子テーブル_参照先」の形で仮に命名している。要修正であれば変更可。
+--   2. 本ファイルは STEP 1 〜 STEP 5 の順に上から実行すること。
+--      （STEP 3 の移行DMLを飛ばして STEP 4 の NOT NULL化を先に実行すると、
+--        既存データがある場合エラーになる）
 --------------------------------------------------------------------------------
 
 
 --================================================================================
--- 1. SLACK_WORKSPACES（新規テーブル）
+-- STEP 1. SLACK_WORKSPACES（新規テーブル）
 --================================================================================
 
 CREATE TABLE kanaeru_app_ut.SLACK_WORKSPACES (
@@ -69,7 +64,8 @@ END;
 
 
 --================================================================================
--- 2. SLACK_USER_MAPPINGS（既存テーブル改修）
+-- STEP 2. SLACK_USER_MAPPINGS / SLACK_MESSAGES に WORKSPACE_ID 列を追加
+--          （この時点ではまだ NULL 許容のまま。FK・NOT NULL化はSTEP 4）
 --================================================================================
 
 -- 既存環境で確認済みのUNIQUE制約名（constraint_type = 'U'）
@@ -80,31 +76,8 @@ ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
 ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
     DROP COLUMN SLACK_WORKSPACE;
 
--- WORKSPACE_ID列を追加（既存データがある場合は移行のためNULL許容で追加）
 ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
     ADD (WORKSPACE_ID VARCHAR2(36));
-
--- ▼ 既存データがある場合は、ここでバックフィルのUPDATEを実行してから
---   NOT NULL化すること（本ファイル末尾「移行用DML例」を参照）
-
-ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
-    MODIFY (WORKSPACE_ID NOT NULL);
-
--- FK: SLACK_WORKSPACES
-ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
-    ADD CONSTRAINT FK_SLACK_USER_MAPPINGS_WORKSPACE FOREIGN KEY (WORKSPACE_ID)
-    REFERENCES kanaeru_app_ut.SLACK_WORKSPACES (WORKSPACE_ID);
-
--- 複合UNIQUE (WORKSPACE_ID, SLACK_USER_ID)
-ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
-    ADD CONSTRAINT IDX_WORKSPACE_ID_SLACK_USER_MAPPINGS_COMPOSITE
-    UNIQUE (WORKSPACE_ID, SLACK_USER_ID)
-    USING INDEX TABLESPACE KANAERU_INDEX;
-
-
---================================================================================
--- 3. SLACK_MESSAGES（既存テーブル改修）
---================================================================================
 
 -- 既存環境で確認済みのUNIQUE制約名（constraint_type = 'U'）
 ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
@@ -113,28 +86,21 @@ ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
 ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
     ADD (WORKSPACE_ID VARCHAR2(36));
 
--- ▼ 既存データがある場合は、ここでバックフィルのUPDATEを実行してから
---   NOT NULL化すること（本ファイル末尾「移行用DML例」を参照）
-
-ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
-    MODIFY (WORKSPACE_ID NOT NULL);
-
--- FK: SLACK_WORKSPACES
-ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
-    ADD CONSTRAINT FK_SLACK_MESSAGES_WORKSPACE FOREIGN KEY (WORKSPACE_ID)
-    REFERENCES kanaeru_app_ut.SLACK_WORKSPACES (WORKSPACE_ID);
-
--- 複合UNIQUE (WORKSPACE_ID, SLACK_TS)
-ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
-    ADD CONSTRAINT IDX_WORKSPACE_ID_SLACK_MESSAGES_COMPOSITE
-    UNIQUE (WORKSPACE_ID, SLACK_TS)
-    USING INDEX TABLESPACE KANAERU_INDEX;
-
 
 --================================================================================
--- 移行用DML例（既存の固定Bot Token分を1ワークスペースとして登録する場合）
---   ※ BOT_TOKEN で auth.test を叩いて TEAM_ID / TEAM_NAME / BOT_USER_ID を
---     取得してから値を埋めて実行すること。DEL_FLGは'0'固定。
+-- STEP 3. 移行用DML（既存の固定Bot Token分を1ワークスペースとして登録）
+--
+-- 手順:
+--   (1) 現在の slack.bot-token の値で auth.test を叩く
+--         curl -X POST https://slack.com/api/auth.test \
+--           -H "Authorization: Bearer <今のslack.bot-tokenの値>"
+--       レスポンスの team_id / team / user_id を下記 <team_id> / <team_name> / <bot_user_id> に反映
+--       （user_id が「Bot自身のSlack User ID」。bot_id ではない点に注意）
+--   (2) WORKSPACE_ID用のUUIDを発行
+--         SELECT LOWER(REGEXP_REPLACE(RAWTOHEX(SYS_GUID()),
+--                '(.{8})(.{4})(.{4})(.{4})(.{12})', '\1-\2-\3-\4-\5')) AS new_uuid FROM dual;
+--       出力された値を下記 <UUID>（3箇所すべて同じ値）に反映
+--   (3) 下記3文のコメントを外して実行
 --================================================================================
 
 -- INSERT INTO kanaeru_app_ut.SLACK_WORKSPACES
@@ -144,3 +110,33 @@ ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
 --
 -- UPDATE kanaeru_app_ut.SLACK_USER_MAPPINGS SET WORKSPACE_ID = '<UUID>' WHERE WORKSPACE_ID IS NULL;
 -- UPDATE kanaeru_app_ut.SLACK_MESSAGES SET WORKSPACE_ID = '<UUID>' WHERE WORKSPACE_ID IS NULL;
+
+
+--================================================================================
+-- STEP 4. WORKSPACE_ID を NOT NULL化 ＋ FK ＋ 複合UNIQUE
+--          （STEP 3 のバックフィルが全件完了していることを確認してから実行）
+--================================================================================
+
+ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
+    MODIFY (WORKSPACE_ID NOT NULL);
+
+ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
+    ADD CONSTRAINT FK_SLACK_USER_MAPPINGS_WORKSPACE FOREIGN KEY (WORKSPACE_ID)
+    REFERENCES kanaeru_app_ut.SLACK_WORKSPACES (WORKSPACE_ID);
+
+ALTER TABLE kanaeru_app_ut.SLACK_USER_MAPPINGS
+    ADD CONSTRAINT IDX_WORKSPACE_ID_SLACK_USER_MAPPINGS_COMPOSITE
+    UNIQUE (WORKSPACE_ID, SLACK_USER_ID)
+    USING INDEX TABLESPACE KANAERU_INDEX;
+
+ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
+    MODIFY (WORKSPACE_ID NOT NULL);
+
+ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
+    ADD CONSTRAINT FK_SLACK_MESSAGES_WORKSPACE FOREIGN KEY (WORKSPACE_ID)
+    REFERENCES kanaeru_app_ut.SLACK_WORKSPACES (WORKSPACE_ID);
+
+ALTER TABLE kanaeru_app_ut.SLACK_MESSAGES
+    ADD CONSTRAINT IDX_WORKSPACE_ID_SLACK_MESSAGES_COMPOSITE
+    UNIQUE (WORKSPACE_ID, SLACK_TS)
+    USING INDEX TABLESPACE KANAERU_INDEX;

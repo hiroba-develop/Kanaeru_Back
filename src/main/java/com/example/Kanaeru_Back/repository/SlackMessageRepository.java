@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SlackMessageRepository extends JpaRepository<SlackMessageEntity, String> {
 
-    boolean existsBySlackTs(String slackTs);
+    boolean existsByWorkspaceIdAndSlackTs(String workspaceId, String slackTs);
 }

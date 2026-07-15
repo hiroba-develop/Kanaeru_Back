@@ -7,6 +7,8 @@ package com.example.Kanaeru_Back.controller;
 
 import com.example.Kanaeru_Back.model.ApiAuthTermsAgreePost200Response;
 import com.example.Kanaeru_Back.model.GetSlackUserMapping200Response;
+import com.example.Kanaeru_Back.model.SlackOauthAuthorizeResponse;
+import com.example.Kanaeru_Back.model.SlackOauthStatusResponse;
 import com.example.Kanaeru_Back.model.SlackUserMappingRequest;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,96 @@ import jakarta.annotation.Generated;
 @Validated
 @Tag(name = "Slack連携", description = "Slack連携関連API（SLACK_USER_MAPPINGS テーブル）")
 public interface SlackApi {
+
+    /**
+     * GET /api/slack/oauth/authorize : Slack OAuth 認可開始
+     * Slack公式の認可URLを発行してJSONで返す（302リダイレクトはしない）。 ブラウザの通常ページ遷移はAuthorizationヘッダーを送信できないため、 フロントエンドはこのAPIをAuthorizationヘッダー付きのfetch/axiosで呼び出し、 レスポンスのauthorizeUrlへ window.location.href で遷移させること。 state に userId・returnUrl を含む署名付きトークンを発行し、コールバック時に検証する。 JWT認証必須。 
+     *
+     * @param userId  (required)
+     * @param returnUrl 連携完了後にリダイレクトするkanaeru側のURL（設定画面） (required)
+     * @return 認可URL発行成功 (status code 200)
+     */
+    @Operation(
+        operationId = "apiSlackOauthAuthorizeGet",
+        summary = "Slack OAuth 認可開始",
+        description = "Slack公式の認可URLを発行してJSONで返す（302リダイレクトはしない）。 ブラウザの通常ページ遷移はAuthorizationヘッダーを送信できないため、 フロントエンドはこのAPIをAuthorizationヘッダー付きのfetch/axiosで呼び出し、 レスポンスのauthorizeUrlへ window.location.href で遷移させること。 state に userId・returnUrl を含む署名付きトークンを発行し、コールバック時に検証する。 JWT認証必須。 ",
+        tags = { "Slack連携" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "認可URL発行成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = SlackOauthAuthorizeResponse.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/slack/oauth/authorize",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<SlackOauthAuthorizeResponse> apiSlackOauthAuthorizeGet(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId,
+        @NotNull @Parameter(name = "returnUrl", description = "連携完了後にリダイレクトするkanaeru側のURL（設定画面）", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "returnUrl", required = true) String returnUrl
+    );
+
+
+    /**
+     * GET /api/slack/oauth/callback : Slack OAuth コールバック
+     * Slackからのリダイレクトを受け、認可コードをBot Tokenに交換して SLACK_WORKSPACES / SLACK_USER_MAPPINGS へ保存する。 認証不要（SecurityConfigでpermitAll）。 
+     *
+     * @param state  (required)
+     * @param code  (optional)
+     * @param error  (optional)
+     * @return returnUrl へリダイレクト（成否をクエリパラメータで通知） (status code 302)
+     */
+    @Operation(
+        operationId = "apiSlackOauthCallbackGet",
+        summary = "Slack OAuth コールバック",
+        description = "Slackからのリダイレクトを受け、認可コードをBot Tokenに交換して SLACK_WORKSPACES / SLACK_USER_MAPPINGS へ保存する。 認証不要（SecurityConfigでpermitAll）。 ",
+        tags = { "Slack連携" },
+        responses = {
+            @ApiResponse(responseCode = "302", description = "returnUrl へリダイレクト（成否をクエリパラメータで通知）")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/slack/oauth/callback"
+    )
+    
+    ResponseEntity<Void> apiSlackOauthCallbackGet(
+        @NotNull @Parameter(name = "state", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "state", required = true) String state,
+        @Parameter(name = "code", description = "", in = ParameterIn.QUERY) @Valid @RequestParam(value = "code", required = false) String code,
+        @Parameter(name = "error", description = "", in = ParameterIn.QUERY) @Valid @RequestParam(value = "error", required = false) String error
+    );
+
+
+    /**
+     * GET /api/slack/oauth/status : Slack連携状態取得
+     * ログインユーザーが所属するSlackワークスペースの連携状況を取得（設定画面表示用） 
+     *
+     * @param userId  (required)
+     * @return 取得成功 (status code 200)
+     */
+    @Operation(
+        operationId = "getSlackOauthStatus",
+        summary = "Slack連携状態取得",
+        description = "ログインユーザーが所属するSlackワークスペースの連携状況を取得（設定画面表示用） ",
+        tags = { "Slack連携" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "取得成功", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = SlackOauthStatusResponse.class))
+            })
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/api/slack/oauth/status",
+        produces = "application/json"
+    )
+    
+    ResponseEntity<SlackOauthStatusResponse> getSlackOauthStatus(
+        @NotNull @Parameter(name = "userId", description = "", required = true, in = ParameterIn.QUERY) @Valid @RequestParam(value = "userId", required = true) String userId
+    );
+
 
     /**
      * GET /api/slack/user-mapping : Slack ユーザーID取得
