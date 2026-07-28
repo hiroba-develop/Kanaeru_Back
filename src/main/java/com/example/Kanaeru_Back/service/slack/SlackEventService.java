@@ -189,7 +189,10 @@ public class SlackEventService {
         if (mappingOpt.isEmpty()) {
             logger.warn("Slackユーザーに対応するkanaeruユーザーが見つかりません: {}", slackUserId);
             sendSlackMessage(channelId, replyTs,
-                    "kanaeruに目標を登録するためには、SlackメンバーIDの紐づけが必要です。\nkanaeruの設定画面でSlackメンバーIDを登録してください。",
+                    "kanaeruに目標を登録するには、Slackとkanaeruアカウントの連携が必要です。\n\n"
+                            + "・kanaeruアカウントをお持ちでない方は、まずアカウントを登録してください\n"
+                            + "・すでにお持ちの方は、kanaeruの設定画面からSlack連携を行ってください\n\n"
+                            + "kanaeru: " + frontendUrl,
                     botToken);
             return;
         }
@@ -339,10 +342,10 @@ public class SlackEventService {
             return goals;
         }
 
-        // 同一行内に ・ や • が複数ある場合に改行を挿入して統一
-        String normalized = text
-                .replace("・", "\n・")
-                .replace("•", "\n•");
+        // 同一行内に ・ や • が複数ある場合に改行を挿入して統一する。
+        // ただし「画像・写真を整理する」のように文中の区切りとして使われている場合は
+        // 分割対象にしないため、行頭または直前が空白（＝新しい箇条書きの開始）の場合のみ分割する。
+        String normalized = text.replaceAll("(?:^|(?<=\\s))([・•])", "\n$1");
 
         String[] lines = normalized.split("\n");
         for (String line : lines) {
